@@ -5,6 +5,7 @@ import { getExpensesByHousehold, addExpense, updateExpense, deleteExpense } from
 import { getCategoriesByHousehold } from '../services/categoryService';
 import supabase from '../services/supabaseClient';
 import { getCache, setCache } from '../utils/cacheManager';
+import { useAuth } from '../contexts/AuthContext';
 
 const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 700;
 
@@ -20,6 +21,7 @@ const ExpenseTable: React.FC = () => {
   const [syncing, setSyncing] = useState(false);
   const [queuedMutations, setQueuedMutations] = useState<any[]>([]);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -136,7 +138,7 @@ const ExpenseTable: React.FC = () => {
     const expenseData = {
       ...newExpense,
       household_id: household.id,
-      created_by: '', // Fill with user id if available
+      created_by: user?.id, // Use the actual user ID
       is_recurring: !!newExpense.is_recurring,
       date: newExpense.date || new Date().toISOString().slice(0, 10),
       amount: Number(newExpense.amount) || 0,
