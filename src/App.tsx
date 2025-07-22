@@ -133,7 +133,7 @@ const HouseholdGate: React.FC = () => {
           }}
         >Shopping Lists</button>
       </div>
-      <main style={{ flex: 1, padding: isMobile ? 10 : 24, maxWidth: 1200, margin: '0 auto', width: '100%' }}>
+      <main style={{ flex: 1, padding: isMobile ? 10 : 24, maxWidth: 1200, margin: '0 auto', width: isMobile ? '95%' : '100%' }}>
         {activeTab === 'dashboard' ? (
           <>
             <DashboardSummary />

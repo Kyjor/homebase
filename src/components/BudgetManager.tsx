@@ -6,6 +6,8 @@ import { getBudgetsByHousehold, addBudget, updateBudget, deleteBudget } from '..
 import supabase from '../services/supabaseClient';
 import { getCache, setCache } from '../utils/cacheManager';
 
+const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 700;
+
 function getCurrentMonth() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -188,23 +190,37 @@ const BudgetManager: React.FC = () => {
   if (loading) return <div>Loading budgets...</div>;
   if (error) return <div className="budget-error">{error}</div>;
 
+  const mobile = isMobile();
+
   return (
-    <div className="budget-manager">
-      {syncing && <div style={{ background: '#e3f2fd', color: '#1565c0', padding: '4px 0', textAlign: 'center', fontWeight: 600 }}>Syncing offline changes...</div>}
-      <h3>Manage Budgets ({getCurrentMonth()})</h3>
-      <table className="budget-table">
+    <div style={{
+      background: '#fff',
+      borderRadius: 12,
+      boxShadow: '0 2px 12px 0 rgba(60,72,88,0.08)',
+      padding: mobile ? '1rem 0.5rem' : '1.5rem 1.5rem',
+      margin: mobile ? '10px 0' : '18px 0',
+      maxWidth: 420,
+      width: '100%',
+      boxSizing: 'border-box',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+    }}>
+      <h3 style={{ fontWeight: 700, fontSize: mobile ? 18 : 22, color: '#2d3748', marginBottom: 10, textAlign: 'center' }}>Budgets ({getCurrentMonth()})</h3>
+      {syncing && <div style={{ background: '#e3f2fd', color: '#1565c0', padding: '4px 0', textAlign: 'center', fontWeight: 600, borderRadius: 6, marginBottom: 10 }}>Syncing offline changes...</div>}
+      {error && <div style={{ background: '#fee2e2', color: '#b91c1c', borderRadius: 6, padding: '8px 12px', fontSize: 15, textAlign: 'center', marginBottom: 10, fontWeight: 500 }}>{error}</div>}
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 15 }}>
         <thead>
-          <tr>
-            <th>Category</th>
-            <th>Monthly Limit</th>
-            <th>Action</th>
+          <tr style={{ background: '#f1f5f9' }}>
+            <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Category</th>
+            <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Monthly Limit</th>
+            <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Action</th>
           </tr>
         </thead>
         <tbody>
           {categories.map(cat => (
-            <tr key={cat.id}>
-              <td>{cat.name}</td>
-              <td>
+            <tr key={cat.id} style={{ background: '#f8fafc' }}>
+              <td style={{ padding: '8px 6px', fontWeight: 600, color: '#334155' }}>{cat.name}</td>
+              <td style={{ padding: '8px 6px' }}>
                 <input
                   type="number"
                   min="0"
@@ -212,10 +228,28 @@ const BudgetManager: React.FC = () => {
                   value={editLimits[cat.id] || ''}
                   onChange={e => handleLimitChange(cat.id, e.target.value)}
                   disabled={saving}
+                  style={{ width: mobile ? '100%' : 90, padding: '8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
                 />
               </td>
-              <td>
-                <button onClick={() => handleSave(cat.id)} disabled={saving}>
+              <td style={{ padding: '8px 6px' }}>
+                <button
+                  onClick={() => handleSave(cat.id)}
+                  disabled={saving}
+                  style={{
+                    background: 'linear-gradient(90deg, #6366f1 0%, #60a5fa 100%)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 6,
+                    padding: '8px 0',
+                    fontWeight: 600,
+                    fontSize: 15,
+                    cursor: saving ? 'not-allowed' : 'pointer',
+                    minWidth: 70,
+                    width: mobile ? '100%' : undefined,
+                    boxShadow: '0 2px 8px 0 rgba(60,72,88,0.08)',
+                    transition: 'background 0.2s',
+                  }}
+                >
                   {budgets.find(b => b.category_id === cat.id && b.month === getCurrentMonth()) ? 'Update' : 'Set'}
                 </button>
               </td>

@@ -5,7 +5,7 @@ import { getCategoriesByHousehold, addCategory, updateCategory, deleteCategory }
 import supabase from '../services/supabaseClient';
 import { getCache, setCache } from '../utils/cacheManager';
 
-const defaultCategoryNames = ['Groceries', 'Utilities', 'Entertainment', 'Household Items'];
+const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 700;
 
 const CategoryManager: React.FC = () => {
   const { household } = useHousehold();
@@ -190,23 +190,54 @@ const CategoryManager: React.FC = () => {
   if (loading) return <div>Loading categories...</div>;
   if (error) return <div className="category-error">{error}</div>;
 
+  const mobile = isMobile();
+
   return (
-    <div className="category-manager">
-      {syncing && <div style={{ background: '#e3f2fd', color: '#1565c0', padding: '4px 0', textAlign: 'center', fontWeight: 600 }}>Syncing offline changes...</div>}
-      <h3>Manage Categories</h3>
-      <form onSubmit={handleAdd} className="category-add-form">
+    <div style={{
+      background: '#fff',
+      borderRadius: 12,
+      boxShadow: '0 2px 12px 0 rgba(60,72,88,0.08)',
+      padding: mobile ? '1rem 0.5rem' : '1.5rem 1.5rem',
+      margin: mobile ? '10px 0' : '18px 0',
+      maxWidth: 420,
+      width: '100%',
+      boxSizing: 'border-box',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+    }}>
+      <h3 style={{ fontWeight: 700, fontSize: mobile ? 18 : 22, color: '#2d3748', marginBottom: 10, textAlign: 'center' }}>Categories</h3>
+      {syncing && <div style={{ background: '#e3f2fd', color: '#1565c0', padding: '4px 0', textAlign: 'center', fontWeight: 600, borderRadius: 6, marginBottom: 10 }}>Syncing offline changes...</div>}
+      {error && <div style={{ background: '#fee2e2', color: '#b91c1c', borderRadius: 6, padding: '8px 12px', fontSize: 15, textAlign: 'center', marginBottom: 10, fontWeight: 500 }}>{error}</div>}
+      <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: mobile ? 10 : 8, marginBottom: 16 }}>
         <input
           type="text"
           placeholder="New category name"
           value={newCategory}
           onChange={e => setNewCategory(e.target.value)}
           required
+          style={{ flex: 1, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
         />
-        <button type="submit">Add</button>
+        <button
+          type="submit"
+          style={{
+            background: 'linear-gradient(90deg, #6366f1 0%, #60a5fa 100%)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 6,
+            padding: '10px 0',
+            fontWeight: 600,
+            fontSize: 15,
+            cursor: 'pointer',
+            minWidth: 70,
+            width: mobile ? '100%' : undefined,
+            boxShadow: '0 2px 8px 0 rgba(60,72,88,0.08)',
+            transition: 'background 0.2s',
+          }}
+        >Add</button>
       </form>
-      <ul className="category-list">
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
         {categories.map(cat => (
-          <li key={cat.id} className={cat.type === 'default' ? 'default-category' : 'custom-category'}>
+          <li key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#f8fafc', borderRadius: 8, padding: '8px 10px' }}>
             {editingId === cat.id ? (
               <>
                 <input
@@ -214,20 +245,21 @@ const CategoryManager: React.FC = () => {
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
                   required
+                  style={{ flex: 1, minWidth: 0, width: '100%', padding: '8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
                 />
-                <button onClick={() => handleEditSave(cat.id)}>Save</button>
-                <button onClick={() => setEditingId(null)}>Cancel</button>
+                <button onClick={() => handleEditSave(cat.id)} style={{ background: '#6366f1', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Save</button>
+                <button onClick={() => setEditingId(null)} style={{ background: '#f1f5f9', color: '#334155', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
               </>
             ) : (
               <>
-                <span>{cat.name}</span>
+                <span style={{ flex: 1, fontWeight: 600, color: '#334155', fontSize: 15 }}>{cat.name}</span>
                 {cat.type === 'custom' && (
                   <>
-                    <button onClick={() => handleEdit(cat)}>Rename</button>
-                    <button onClick={() => handleDelete(cat.id)}>Delete</button>
+                    <button onClick={() => handleEdit(cat)} style={{ background: '#6366f1', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer', marginRight: 4 }}>Rename</button>
+                    <button onClick={() => handleDelete(cat.id)} style={{ background: '#f1f5f9', color: '#334155', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Delete</button>
                   </>
                 )}
-                {cat.type === 'default' && <span className="default-label">(default)</span>}
+                {cat.type === 'default' && <span style={{ color: '#64748b', fontSize: 14, marginLeft: 6 }}>(default)</span>}
               </>
             )}
           </li>

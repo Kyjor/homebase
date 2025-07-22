@@ -61,7 +61,7 @@ const DashboardSummary: React.FC = () => {
       padding: mobile ? '1.2rem 0.5rem' : '2rem 2.5rem',
       margin: mobile ? '18px 0' : '32px 0',
       maxWidth: 900,
-      width: '100%',
+      width: mobile ? '95%' : '100%',
       marginLeft: 'auto',
       marginRight: 'auto',
     }}>

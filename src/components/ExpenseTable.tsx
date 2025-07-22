@@ -321,7 +321,8 @@ const ExpenseTable: React.FC = () => {
             {expenses.map(exp => (
               editingId === exp.id ? (
                 <tr key={exp.id} style={{ background: '#f8fafc' }}>
-                  <td><input type="date" value={editExpense.date || ''} onChange={e => handleEditChange('date', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
+                  {/* default date is today */}
+                  <td><input type="date" value={editExpense.date || new Date().toISOString().slice(0, 10)} onChange={e => handleEditChange('date', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
                   <td><input type="text" value={editExpense.item_name || ''} onChange={e => handleEditChange('item_name', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
                   <td><input type="number" value={editExpense.amount || ''} onChange={e => handleEditChange('amount', Number(e.target.value))} min="0" step="0.01" style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
                   <td>
