@@ -242,7 +242,7 @@ const ExpenseTable: React.FC = () => {
           />
           <input
             type="text"
-            placeholder="Item Name"
+            placeholder="Name"
             value={newExpense.item_name || ''}
             onChange={e => setNewExpense({ ...newExpense, item_name: e.target.value })}
             required
@@ -252,7 +252,7 @@ const ExpenseTable: React.FC = () => {
         <div style={{ flex: 1, display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: mobile ? 10 : 8 }}>
           <input
             type="number"
-            placeholder="Amount"
+            placeholder="Price"
             value={newExpense.amount || ''}
             onChange={e => setNewExpense({ ...newExpense, amount: Number(e.target.value) })}
             required

@@ -25,6 +25,8 @@ export interface Expense {
   is_recurring: boolean;
   created_by: string;
   created_at: string;
+  shopping_list_id?: string; // Optional: links to a shopping list if this is a shopping list item
+  is_purchased?: boolean; // Optional: for shopping list/expense integration
 }
 
 // Category type
