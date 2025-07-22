@@ -209,9 +209,10 @@ const ExpenseTable: React.FC = () => {
       borderRadius: 14,
       boxShadow: '0 4px 24px 0 rgba(60,72,88,0.10)',
       padding: mobile ? '1.2rem 0.5rem' : '2rem 2.5rem',
-      margin: mobile ? '18px 0' : '32px 0',
-      maxWidth: 900,
+      margin: mobile ? '12px 0' : '32px 0',
+      maxWidth: '100vw',
       width: '100%',
+      boxSizing: 'border-box',
       marginLeft: 'auto',
       marginRight: 'auto',
     }}>
@@ -235,7 +236,7 @@ const ExpenseTable: React.FC = () => {
             value={newExpense.date || ''}
             onChange={e => setNewExpense({ ...newExpense, date: e.target.value })}
             required
-            style={{ flex: 1, minWidth: 0, padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15 }}
+            style={{ flex: 1, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
           />
           <input
             type="text"
@@ -243,7 +244,7 @@ const ExpenseTable: React.FC = () => {
             value={newExpense.item_name || ''}
             onChange={e => setNewExpense({ ...newExpense, item_name: e.target.value })}
             required
-            style={{ flex: 2, minWidth: 0, padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15 }}
+            style={{ flex: 2, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
           />
         </div>
         <div style={{ flex: 1, display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: mobile ? 10 : 8 }}>
@@ -255,13 +256,13 @@ const ExpenseTable: React.FC = () => {
             required
             min="0"
             step="0.01"
-            style={{ flex: 1, minWidth: 0, padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15 }}
+            style={{ flex: 1, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
           />
           <select
             value={newExpense.category_id || ''}
             onChange={e => setNewExpense({ ...newExpense, category_id: e.target.value })}
             required
-            style={{ flex: 1, minWidth: 0, padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15 }}
+            style={{ flex: 1, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
           >
             {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
           </select>
@@ -272,7 +273,7 @@ const ExpenseTable: React.FC = () => {
             placeholder="Notes"
             value={newExpense.notes || ''}
             onChange={e => setNewExpense({ ...newExpense, notes: e.target.value })}
-            style={{ flex: 2, minWidth: 0, padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15 }}
+            style={{ flex: 2, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
           />
           <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 15 }}>
             <input
@@ -295,6 +296,7 @@ const ExpenseTable: React.FC = () => {
               fontSize: 15,
               cursor: 'pointer',
               minWidth: 70,
+              width: mobile ? '100%' : undefined,
               boxShadow: '0 2px 8px 0 rgba(60,72,88,0.08)',
               transition: 'background 0.2s',
             }}
@@ -302,8 +304,8 @@ const ExpenseTable: React.FC = () => {
         </div>
       </form>
       {/* Responsive Table */}
-      <div style={{ overflowX: 'auto', width: '100%' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
+      <div style={{ overflowX: 'auto', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: mobile ? undefined : 600, boxSizing: 'border-box' }}>
           <thead>
             <tr style={{ background: '#f1f5f9' }}>
               <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Date</th>
@@ -319,15 +321,15 @@ const ExpenseTable: React.FC = () => {
             {expenses.map(exp => (
               editingId === exp.id ? (
                 <tr key={exp.id} style={{ background: '#f8fafc' }}>
-                  <td><input type="date" value={editExpense.date || ''} onChange={e => handleEditChange('date', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1' }} /></td>
-                  <td><input type="text" value={editExpense.item_name || ''} onChange={e => handleEditChange('item_name', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1' }} /></td>
-                  <td><input type="number" value={editExpense.amount || ''} onChange={e => handleEditChange('amount', Number(e.target.value))} min="0" step="0.01" style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1' }} /></td>
+                  <td><input type="date" value={editExpense.date || ''} onChange={e => handleEditChange('date', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
+                  <td><input type="text" value={editExpense.item_name || ''} onChange={e => handleEditChange('item_name', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
+                  <td><input type="number" value={editExpense.amount || ''} onChange={e => handleEditChange('amount', Number(e.target.value))} min="0" step="0.01" style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
                   <td>
-                    <select value={editExpense.category_id || ''} onChange={e => handleEditChange('category_id', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1' }}>
+                    <select value={editExpense.category_id || ''} onChange={e => handleEditChange('category_id', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }}>
                       {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                     </select>
                   </td>
-                  <td><input type="text" value={editExpense.notes || ''} onChange={e => handleEditChange('notes', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1' }} /></td>
+                  <td><input type="text" value={editExpense.notes || ''} onChange={e => handleEditChange('notes', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
                   <td><input type="checkbox" checked={!!editExpense.is_recurring} onChange={e => handleEditChange('is_recurring', !editExpense.is_recurring)} /></td>
                   <td>
                     <button onClick={() => handleEditSave(exp.id)} style={{ marginRight: 6, background: '#6366f1', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Save</button>
