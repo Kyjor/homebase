@@ -5,6 +5,8 @@ import { Expense } from '../types';
 import { getExpensesByHousehold, addExpense, updateExpense, deleteExpense } from '../services/expenseService';
 import { useAuth } from '../contexts/AuthContext';
 import supabase from '../services/supabaseClient';
+import { WheelPicker, WheelPickerWrapper } from '@ncdai/react-wheel-picker';
+import './ShoppingListManager.css';
 
 const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 700;
 
@@ -152,7 +154,14 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
   const [editItem, setEditItem] = useState<Partial<Expense & { is_purchased?: boolean }>>({});
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const mobile = isMobile();
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editModalItem, setEditModalItem] = useState<Expense | null>(null);
+  const [editModalAmount, setEditModalAmount] = useState('0.00');
+  const [dollarValue, setDollarValue] = useState('0');
+  const [centValue, setCentValue] = useState('00');
 
+  const dollarOptions = Array.from({ length: 200 }, (_, i) => ({ label: i.toString(), value: i.toString() }));
+  const centOptions = Array.from({ length: 100 }, (_, i) => ({ label: i.toString(), value: i.toString() }));
   useEffect(() => {
     if (!household) return;
     setLoading(true);
@@ -258,6 +267,16 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
     }
   };
 
+  const handleEditModalSave = (d: string, c: string) => {
+    if (!editModalItem) return;
+    const newAmount = parseFloat(`${d}.${c}`);
+    updateExpense(editModalItem.id, { amount: newAmount }).then(updated => {
+      setItems(items.map(i => (i.id === editModalItem.id ? updated : i)));
+      setEditModalOpen(false);
+      setEditModalItem(null);
+    });
+  };
+
   return (
     <div style={{
       background: '#fff',
@@ -271,11 +290,14 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
       marginLeft: 'auto',
       marginRight: 'auto',
       position: 'relative',
+      minHeight: mobile ? 'calc(100vh - 80px)' : 420,
+      display: 'flex',
+      flexDirection: 'column',
     }}>
       <button onClick={onBack} style={{ position: 'absolute', left: 12, top: 12, background: 'none', border: 'none', color: '#6366f1', fontWeight: 700, fontSize: 18, cursor: 'pointer' }}>← Back</button>
       <h2 style={{ fontWeight: 700, fontSize: mobile ? 22 : 26, color: '#2d3748', marginBottom: 10, textAlign: 'center' }}>{list.name}</h2>
       {error && <div style={{ background: '#fee2e2', color: '#b91c1c', borderRadius: 6, padding: '8px 12px', fontSize: 15, textAlign: 'center', marginBottom: 10, fontWeight: 500 }}>{error}</div>}
-      <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: mobile ? 10 : 8, marginBottom: 16 }}>
+      <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: mobile ? 10 : 8, marginBottom: 18 }}>
         <input
           type="text"
           placeholder="Item name"
@@ -330,51 +352,139 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
           }}
         >Add</button>
       </form>
-      <div style={{ overflowX: 'auto', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 15, minWidth: mobile ? undefined : 600, boxSizing: 'border-box' }}>
-          <thead>
-            <tr style={{ background: '#f1f5f9' }}>
-              <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Item</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Amount</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Category</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Purchased</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map(item => (
-              editingId === item.id ? (
-                <tr key={item.id} style={{ background: '#f8fafc' }}>
-                  <td><input type="text" value={editItem.item_name || ''} onChange={e => setEditItem({ ...editItem, item_name: e.target.value })} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
-                  <td><input type="number" value={editItem.amount || ''} onChange={e => setEditItem({ ...editItem, amount: Number(e.target.value) })} min="0" step="0.01" style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
-                  <td>
-                    <select value={editItem.category_id || ''} onChange={e => setEditItem({ ...editItem, category_id: e.target.value })} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }}>
-                      {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
-                    </select>
-                  </td>
-                  <td>{!!item.is_purchased ? 'Yes' : 'No'}</td>
-                  <td>
-                    <button onClick={() => handleEditSave(item.id)} style={{ marginRight: 6, background: '#6366f1', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Save</button>
-                    <button onClick={() => setEditingId(null)} style={{ background: '#f1f5f9', color: '#334155', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
-                  </td>
-                </tr>
-              ) : (
-                <tr key={item.id}>
-                  <td>{item.item_name}</td>
-                  <td>{item.amount.toFixed(2)}</td>
-                  <td>{categories.find(cat => cat.id === item.category_id)?.name || '—'}</td>
-                  <td>{!!item.is_purchased ? 'Yes' : 'No'}</td>
-                  <td>
-                    <button onClick={() => handleEdit(item)} style={{ marginRight: 6, background: '#6366f1', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Edit</button>
-                    <button onClick={() => handleDelete(item.id)} style={{ background: '#f1f5f9', color: '#334155', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Delete</button>
-                    {!item.is_purchased && <button onClick={() => handlePurchase(item)} style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer', marginLeft: 6 }}>Purchased</button>}
-                  </td>
-                </tr>
-              )
-            ))}
-          </tbody>
-        </table>
+      <div style={{ flex: 1, overflowY: 'auto', width: '100%', maxWidth: '100vw', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {items.length === 0 && (
+          <div style={{ color: '#64748b', fontSize: 16, textAlign: 'center', marginTop: 24 }}>No items yet.</div>
+        )}
+        {items.map(item => (
+          <div key={item.id} style={{
+            background: '#f8fafc',
+            borderRadius: 10,
+            boxShadow: '0 1px 4px 0 rgba(60,72,88,0.06)',
+            padding: '12px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            marginBottom: 2,
+            position: 'relative',
+          }}>
+            <div style={{ flex: 2, fontWeight: 600, color: '#2d3748', fontSize: 16 }}>{item.item_name}</div>
+            <div style={{ flex: 1, color: '#334155', fontSize: 15 }}>${item.amount.toFixed(2)}</div>
+            <div style={{ flex: 1, color: '#64748b', fontSize: 15 }}>{categories.find(cat => cat.id === item.category_id)?.name || '—'}</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => {
+                setEditModalItem(item);
+                const [d, c] = item.amount.toFixed(2).split('.');
+                setEditModalAmount(d + '.' + c);
+                setEditModalOpen(true);
+                setDollarValue(d);
+                setCentValue(c);
+              }} style={{ background: 'none', border: 'none', color: '#6366f1', fontSize: 20, cursor: 'pointer', padding: 4 }} aria-label="Edit"><span role="img" aria-label="Edit">✏️</span></button>
+              <button onClick={() => handleDelete(item.id)} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: 20, cursor: 'pointer', padding: 4 }} aria-label="Delete"><span role="img" aria-label="Delete">🗑️</span></button>
+            </div>
+          </div>
+        ))}
       </div>
+      {/* Modal for editing price */}
+      {editModalOpen && editModalItem && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.18)',
+          zIndex: 100,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+          onClick={() => { setEditModalOpen(false); setEditModalItem(null); }}
+        >
+          <div
+            style={{
+              background: '#fff',
+              borderRadius: 24,
+              boxShadow: '0 12px 48px 0 rgba(60,72,88,0.22)',
+              padding: 48,
+              minWidth: 480,
+              maxWidth: '98vw',
+              zIndex: 101,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 32,
+              position: 'relative',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => { setEditModalOpen(false); setEditModalItem(null); }}
+              style={{
+                position: 'absolute',
+                top: 18,
+                right: 22,
+                background: 'none',
+                border: 'none',
+                fontSize: 36,
+                color: '#6366f1',
+                cursor: 'pointer',
+                zIndex: 2,
+              }}
+              aria-label="Close popup"
+            >×</button>
+            <div style={{ fontWeight: 800, fontSize: 32, color: '#2d3748', marginBottom: 12 }}>Edit Price</div>
+            <div style={{ width: 400, display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 32, margin: '0 auto', padding: 0 }}>
+              <WheelPickerWrapper className="w-full flex flex-row gap-8">
+                <WheelPicker
+                  options={dollarOptions}
+                  value={dollarValue}
+                  onValueChange={setDollarValue}
+                  visibleCount={7}
+                  optionItemHeight={128}
+                  classNames={{
+                    optionItem: 'text-zinc-400 dark:text-zinc-500 text-2xl',
+                    highlightWrapper: 'invisible',
+                    highlightItem: 'invisible',
+                  }}
+                />
+                <WheelPicker
+                  options={centOptions}
+                  value={centValue}
+                  onValueChange={setCentValue}
+                  visibleCount={7}
+                  optionItemHeight={128}
+                  classNames={{
+                    optionItem: 'text-zinc-400 dark:text-zinc-500 text-2xl',
+                    highlightWrapper: 'invisible',
+                    highlightItem: 'invisible',
+                  }}
+                />
+              </WheelPickerWrapper>
+            </div>
+            <button
+              onClick={() => {
+                handleEditModalSave(dollarValue, centValue);
+              }}
+              style={{
+                background: 'linear-gradient(90deg, #6366f1 0%, #60a5fa 100%)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 12,
+                padding: '20px 0',
+                fontWeight: 800,
+                fontSize: 28,
+                cursor: 'pointer',
+                minWidth: 180,
+                width: '100%',
+                boxShadow: '0 4px 16px 0 rgba(60,72,88,0.12)',
+                transition: 'background 0.2s',
+                marginTop: 16,
+              }}
+            >+</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

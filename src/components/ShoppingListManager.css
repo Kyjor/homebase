@@ -1,0 +1,38 @@
+/* Hide overlapping items inside highlight zone */
+.wheel-option {
+    height: 128px;
+    line-height: 128px;
+    text-align: center;
+    position: relative;
+    font-size: 1.875rem; /* 3xl */
+    font-weight: bold;
+    z-index: 1;
+  }
+  
+  /* This ensures only the center (highlighted) one is bold/visible */
+  .wheel-highlight {
+    font-weight: bold;
+    font-size: 1.875rem; /* 3xl */
+    z-index: 2;
+  }
+
+[data-rwp-highlight-wrapper] {
+  display: none !important;
+}
+
+[data-rwp-highlight-item] {
+  display: none !important;
+}
+
+/* Center (selected) item */
+[data-rwp-option][data-rwp-selected="true"] {
+  font-weight: 800;
+  font-size: 2rem; /* ~text-3xl */
+  color: #0f172a;  /* dark zinc / slate */
+}
+
+/* Non-selected items (visible) */
+[data-rwp-option][data-rwp-visible="true"]:not([data-rwp-selected="true"]) {
+  opacity: 0.4;
+  font-size: 1.25rem; /* ~text-xl */
+}

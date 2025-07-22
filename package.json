@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@koozaki/romaji-conv": "^2.0.32",
+    "@ncdai/react-wheel-picker": "^1.0.14",
     "@supabase/supabase-js": "^2.52.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
