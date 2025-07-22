@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9E1106A98C6F27D7DD4511B4"
-               BuildableName = "mlvp.app"
-               BlueprintName = "mlvp_iOS"
-               ReferencedContainer = "container:mlvp.xcodeproj">
+               BlueprintIdentifier = "D1B0D103B234B727DC48B1D2"
+               BuildableName = "homeplan.app"
+               BlueprintName = "homeplan_iOS"
+               ReferencedContainer = "container:homeplan.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -30,10 +30,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9E1106A98C6F27D7DD4511B4"
-            BuildableName = "mlvp.app"
-            BlueprintName = "mlvp_iOS"
-            ReferencedContainer = "container:mlvp.xcodeproj">
+            BlueprintIdentifier = "D1B0D103B234B727DC48B1D2"
+            BuildableName = "homeplan.app"
+            BlueprintName = "homeplan_iOS"
+            ReferencedContainer = "container:homeplan.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <EnvironmentVariables>
@@ -65,10 +65,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9E1106A98C6F27D7DD4511B4"
-            BuildableName = "mlvp.app"
-            BlueprintName = "mlvp_iOS"
-            ReferencedContainer = "container:mlvp.xcodeproj">
+            BlueprintIdentifier = "D1B0D103B234B727DC48B1D2"
+            BuildableName = "homeplan.app"
+            BlueprintName = "homeplan_iOS"
+            ReferencedContainer = "container:homeplan.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <EnvironmentVariables>
@@ -94,10 +94,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9E1106A98C6F27D7DD4511B4"
-            BuildableName = "mlvp.app"
-            BlueprintName = "mlvp_iOS"
-            ReferencedContainer = "container:mlvp.xcodeproj">
+            BlueprintIdentifier = "D1B0D103B234B727DC48B1D2"
+            BuildableName = "homeplan.app"
+            BlueprintName = "homeplan_iOS"
+            ReferencedContainer = "container:homeplan.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <EnvironmentVariables>

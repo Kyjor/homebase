@@ -1,13 +1,13 @@
 # Uncomment the next line to define a global platform for your project
 
-target 'mlvp_iOS' do
+target 'homeplan_iOS' do
 platform :ios, '13.0'
-  # Pods for mlvp_iOS
+  # Pods for homeplan_iOS
 end
 
-target 'mlvp_macOS' do
+target 'homeplan_macOS' do
 platform :osx, '11.0'
-  # Pods for mlvp_macOS
+  # Pods for homeplan_macOS
 end
 
 # Delete the deployment target for iOS and macOS, causing it to be inherited from the Podfile
