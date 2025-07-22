@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import supabase from '../services/supabaseClient';
 import { WheelPicker, WheelPickerWrapper } from '@ncdai/react-wheel-picker';
 import './ShoppingListManager.css';
+import PricePicker from './PricePicker';
 
 const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 700;
 
@@ -156,12 +157,12 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
   const mobile = isMobile();
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editModalItem, setEditModalItem] = useState<Expense | null>(null);
-  const [editModalAmount, setEditModalAmount] = useState('0.00');
   const [dollarValue, setDollarValue] = useState('0');
   const [centValue, setCentValue] = useState('00');
+  const [newDollarValue, setNewDollarValue] = useState('0');
+  const [newCentValue, setNewCentValue] = useState('00');
+  const [priceModalMode, setPriceModalMode] = useState<'add' | 'edit' | null>(null);
 
-  const dollarOptions = Array.from({ length: 200 }, (_, i) => ({ label: i.toString(), value: i.toString() }));
-  const centOptions = Array.from({ length: 100 }, (_, i) => ({ label: i.toString(), value: i.toString() }));
   useEffect(() => {
     if (!household) return;
     setLoading(true);
@@ -209,6 +210,7 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
     if (!household || !user || !newItem.item_name?.trim()) return;
     const qty = Math.max(1, Number(newItem.quantity) || 1);
     const { quantity, ...expenseBase } = newItem; // Remove quantity from payload
+    const amount = parseFloat(`${newDollarValue}.${newCentValue.padStart(2, '0')}`);
     try {
       const promises = Array.from({ length: qty }).map(() =>
         addExpense({
@@ -219,7 +221,7 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
           is_recurring: false,
           is_purchased: false,
           date: new Date().toISOString().slice(0, 10),
-          amount: Number(newItem.amount) || 0,
+          amount,
           category_id: newItem.category_id || categories[0]?.id || '',
           item_name: newItem.item_name || '',
         } as any)
@@ -227,6 +229,8 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
       const results = await Promise.all(promises);
       setItems([...items, ...results]);
       setNewItem({ item_name: '', amount: 0, category_id: '', notes: '', is_purchased: false, quantity: 1 });
+      setNewDollarValue('0');
+      setNewCentValue('00');
     } catch (e: any) {
       setError(e.message);
     }
@@ -306,16 +310,16 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
           required
           style={{ flex: 2, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
         />
-        <input
-          type="number"
-          placeholder="Amount"
-          value={newItem.amount || ''}
-          onChange={e => setNewItem({ ...newItem, amount: Number(e.target.value) })}
-          min="0"
-          step="0.01"
-          required
-          style={{ flex: 1, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
-        />
+        <button
+          type="button"
+          onClick={() => {
+            setDollarValue(newDollarValue);
+            setCentValue(newCentValue);
+            setPriceModalMode('add');
+            setEditModalOpen(true);
+          }}
+          style={{ flex: 1, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, fontWeight: 600, background: '#f1f5f9', color: '#334155', cursor: 'pointer' }}
+        >{`Set Price${newDollarValue !== '0' || newCentValue !== '00' ? `: $${parseInt(newDollarValue, 10)}.${newCentValue.padStart(2, '0')}` : ''}`}</button>
         <input
           type="number"
           placeholder="Qty"
@@ -375,10 +379,10 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
               <button onClick={() => {
                 setEditModalItem(item);
                 const [d, c] = item.amount.toFixed(2).split('.');
-                setEditModalAmount(d + '.' + c);
-                setEditModalOpen(true);
                 setDollarValue(d);
                 setCentValue(c);
+                setPriceModalMode('edit');
+                setEditModalOpen(true);
               }} style={{ background: 'none', border: 'none', color: '#6366f1', fontSize: 20, cursor: 'pointer', padding: 4 }} aria-label="Edit"><span role="img" aria-label="Edit">✏️</span></button>
               <button onClick={() => handleDelete(item.id)} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: 20, cursor: 'pointer', padding: 4 }} aria-label="Delete"><span role="img" aria-label="Delete">🗑️</span></button>
             </div>
@@ -386,7 +390,7 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
         ))}
       </div>
       {/* Modal for editing price */}
-      {editModalOpen && editModalItem && (
+      {editModalOpen && (editModalItem || priceModalMode === 'add') && (
         <div style={{
           position: 'fixed',
           top: 0,
@@ -435,36 +439,26 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
             >×</button>
             <div style={{ fontWeight: 800, fontSize: 32, color: '#2d3748', marginBottom: 12 }}>Edit Price</div>
             <div style={{ width: 400, display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 32, margin: '0 auto', padding: 0 }}>
-              <WheelPickerWrapper className="w-full flex flex-row gap-8">
-                <WheelPicker
-                  options={dollarOptions}
-                  value={dollarValue}
-                  onValueChange={setDollarValue}
-                  visibleCount={7}
-                  optionItemHeight={128}
-                  classNames={{
-                    optionItem: 'text-zinc-400 dark:text-zinc-500 text-2xl',
-                    highlightWrapper: 'invisible',
-                    highlightItem: 'invisible',
-                  }}
-                />
-                <WheelPicker
-                  options={centOptions}
-                  value={centValue}
-                  onValueChange={setCentValue}
-                  visibleCount={7}
-                  optionItemHeight={128}
-                  classNames={{
-                    optionItem: 'text-zinc-400 dark:text-zinc-500 text-2xl',
-                    highlightWrapper: 'invisible',
-                    highlightItem: 'invisible',
-                  }}
-                />
-              </WheelPickerWrapper>
+              <PricePicker
+                dollarValue={dollarValue}
+                centValue={centValue}
+                onDollarChange={setDollarValue}
+                onCentChange={setCentValue}
+                visibleCount={7}
+                optionItemHeight={128}
+              />
             </div>
             <button
               onClick={() => {
-                handleEditModalSave(dollarValue, centValue);
+                if (priceModalMode === 'add') {
+                  setNewDollarValue(dollarValue);
+                  setNewCentValue(centValue);
+                  setEditModalOpen(false);
+                  setPriceModalMode(null);
+                } else {
+                  handleEditModalSave(dollarValue, centValue);
+                  setPriceModalMode(null);
+                }
               }}
               style={{
                 background: 'linear-gradient(90deg, #6366f1 0%, #60a5fa 100%)',
