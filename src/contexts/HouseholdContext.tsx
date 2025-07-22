@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import supabase from '../services/supabaseClient';
 import { Household } from '../types';
 import { useAuth } from './AuthContext';

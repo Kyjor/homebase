@@ -13,7 +13,6 @@ const ExpenseTable: React.FC = () => {
   const { household } = useHousehold();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newExpense, setNewExpense] = useState<Partial<Expense>>({ date: '', item_name: '', amount: 0, category_id: '', notes: '', is_recurring: false });
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -43,10 +42,8 @@ const ExpenseTable: React.FC = () => {
       if (!isOnline) {
         const cached = await getCache<Expense[]>(cacheKey);
         if (!ignore && cached) setExpenses(cached);
-        setLoading(false);
         return;
       }
-      setLoading(true);
       Promise.all([
         getExpensesByHousehold(household.id),
         getCategoriesByHousehold(household.id)
@@ -55,14 +52,12 @@ const ExpenseTable: React.FC = () => {
           if (!ignore) {
             setExpenses(expenses);
             setCategories(categories);
-            setLoading(false);
             await setCache(cacheKey, expenses);
           }
         })
         .catch(e => {
           if (!ignore) {
             setError(e.message);
-            setLoading(false);
           }
         });
     };
@@ -333,7 +328,7 @@ const ExpenseTable: React.FC = () => {
                     </select>
                   </td>
                   <td><input type="text" value={editExpense.notes || ''} onChange={e => handleEditChange('notes', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
-                  <td><input type="checkbox" checked={!!editExpense.is_recurring} onChange={e => handleEditChange('is_recurring', !editExpense.is_recurring)} /></td>
+                  <td><input type="checkbox" checked={!!editExpense.is_recurring} onChange={() => handleEditChange('is_recurring', !editExpense.is_recurring)} /></td>
                   <td>
                     <button onClick={() => handleEditSave(exp.id)} style={{ marginRight: 6, background: '#6366f1', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Save</button>
                     <button onClick={() => setEditingId(null)} style={{ background: '#f1f5f9', color: '#334155', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>

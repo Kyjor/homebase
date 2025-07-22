@@ -5,7 +5,6 @@ import { Expense } from '../types';
 import { getExpensesByHousehold, addExpense, updateExpense, deleteExpense } from '../services/expenseService';
 import { useAuth } from '../contexts/AuthContext';
 import supabase from '../services/supabaseClient';
-import { WheelPicker, WheelPickerWrapper } from '@ncdai/react-wheel-picker';
 import './ShoppingListManager.css';
 import PricePicker from './PricePicker';
 
@@ -14,7 +13,6 @@ const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 700;
 const ShoppingListManager: React.FC = () => {
   const { household } = useHousehold();
   const [lists, setLists] = useState<ShoppingList[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newListName, setNewListName] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -24,11 +22,10 @@ const ShoppingListManager: React.FC = () => {
 
   useEffect(() => {
     if (!household) return;
-    setLoading(true);
     getShoppingListsByHousehold(household.id)
       .then(setLists)
       .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
+      // .finally(() => setLoading(false));
   }, [household]);
 
   const handleAdd = async (e: React.FormEvent) => {
@@ -148,11 +145,8 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
   const { household } = useHousehold();
   const { user } = useAuth();
   const [items, setItems] = useState<Expense[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newItem, setNewItem] = useState<Partial<Expense & { is_purchased?: boolean; quantity?: number }>>({ item_name: '', amount: 0, category_id: '', notes: '', is_purchased: false, quantity: 1 });
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editItem, setEditItem] = useState<Partial<Expense & { is_purchased?: boolean }>>({});
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const mobile = isMobile();
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -165,7 +159,6 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
 
   useEffect(() => {
     if (!household) return;
-    setLoading(true);
     Promise.all([
       getExpensesByHousehold(household.id),
       import('../services/categoryService').then(m => m.getCategoriesByHousehold(household.id)),
@@ -173,11 +166,9 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
       .then(([expenses, cats]) => {
         setItems(expenses.filter(e => e.shopping_list_id === list.id));
         setCategories(cats);
-        setLoading(false);
       })
       .catch(e => {
         setError(e.message);
-        setLoading(false);
       });
     // Real-time subscription for this list
     const channel = supabase.channel(`shopping-list-items-${list.id}`)
@@ -236,36 +227,11 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
     }
   };
 
-  const handleEdit = (item: Expense) => {
-    setEditingId(item.id);
-    setEditItem({ ...item });
-  };
-
-  const handleEditSave = async (id: string) => {
-    try {
-      const updated = await updateExpense(id, editItem);
-      setItems(items.map(i => (i.id === id ? updated : i)));
-      setEditingId(null);
-      setEditItem({});
-    } catch (e: any) {
-      setError(e.message);
-    }
-  };
-
   const handleDelete = async (id: string) => {
     if (!window.confirm('Delete this item?')) return;
     try {
       await deleteExpense(id);
       setItems(items.filter(i => i.id !== id));
-    } catch (e: any) {
-      setError(e.message);
-    }
-  };
-
-  const handlePurchase = async (item: Expense) => {
-    try {
-      const updated = await updateExpense(item.id, { is_purchased: true });
-      setItems(items.map(i => (i.id === item.id ? updated : i)));
     } catch (e: any) {
       setError(e.message);
     }

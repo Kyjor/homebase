@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import supabase from '../services/supabaseClient';
 import { User } from '../types';
 
@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const getSession = async () => {
       setLoading(true);
-      const { data, error } = await supabase.auth.getUser();
+      const { data } = await supabase.auth.getUser();
       if (data?.user) {
         // Fetch user profile from users table
         const { data: profile, error: profileError } = await supabase
@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refreshSession = async () => {
     setLoading(true);
     setError(null);
-    const { data, error } = await supabase.auth.getUser();
+    const { data } = await supabase.auth.getUser();
     if (data?.user) {
       const { data: profile, error: profileError } = await supabase
         .from('users')
