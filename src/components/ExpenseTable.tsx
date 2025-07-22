@@ -6,6 +6,8 @@ import { getCategoriesByHousehold } from '../services/categoryService';
 import supabase from '../services/supabaseClient';
 import { getCache, setCache } from '../utils/cacheManager';
 
+const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 700;
+
 const ExpenseTable: React.FC = () => {
   const { household } = useHousehold();
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -63,7 +65,6 @@ const ExpenseTable: React.FC = () => {
         });
     };
     fetchData();
-
     // Real-time subscription
     const channel = supabase.channel('expenses-changes')
       .on(
@@ -85,7 +86,6 @@ const ExpenseTable: React.FC = () => {
         }
       )
       .subscribe();
-
     return () => {
       ignore = true;
       supabase.removeChannel(channel);
@@ -200,71 +200,158 @@ const ExpenseTable: React.FC = () => {
     }
   };
 
-  if (loading) return <div>Loading expenses...</div>;
-  if (error) return <div className="expense-error">{error}</div>;
+  // Responsive styles
+  const mobile = isMobile();
 
   return (
-    <div className="expense-table-container">
-      {syncing && <div style={{ background: '#e3f2fd', color: '#1565c0', padding: '4px 0', textAlign: 'center', fontWeight: 600 }}>Syncing offline changes...</div>}
-      <form className="expense-add-row" onSubmit={handleAdd}>
-        <input type="date" value={newExpense.date || ''} onChange={e => setNewExpense({ ...newExpense, date: e.target.value })} required />
-        <input type="text" placeholder="Item Name" value={newExpense.item_name || ''} onChange={e => setNewExpense({ ...newExpense, item_name: e.target.value })} required />
-        <input type="number" placeholder="Amount" value={newExpense.amount || ''} onChange={e => setNewExpense({ ...newExpense, amount: Number(e.target.value) })} required min="0" step="0.01" />
-        <select value={newExpense.category_id || ''} onChange={e => setNewExpense({ ...newExpense, category_id: e.target.value })} required>
-          {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
-        </select>
-        <input type="text" placeholder="Notes" value={newExpense.notes || ''} onChange={e => setNewExpense({ ...newExpense, notes: e.target.value })} />
-        <input type="checkbox" checked={!!newExpense.is_recurring} onChange={e => setNewExpense({ ...newExpense, is_recurring: e.target.checked })} />
-        <button type="submit">Add</button>
+    <div style={{
+      background: '#fff',
+      borderRadius: 14,
+      boxShadow: '0 4px 24px 0 rgba(60,72,88,0.10)',
+      padding: mobile ? '1.2rem 0.5rem' : '2rem 2.5rem',
+      margin: mobile ? '18px 0' : '32px 0',
+      maxWidth: 900,
+      width: '100%',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+    }}>
+      {syncing && <div style={{ background: '#e3f2fd', color: '#1565c0', padding: '4px 0', textAlign: 'center', fontWeight: 600, borderRadius: 6, marginBottom: 10 }}>Syncing offline changes...</div>}
+      {error && <div style={{ background: '#fee2e2', color: '#b91c1c', borderRadius: 6, padding: '8px 12px', fontSize: 15, textAlign: 'center', marginBottom: 10, fontWeight: 500 }}>{error}</div>}
+      {/* Add Expense Form */}
+      <form
+        className="expense-add-row"
+        onSubmit={handleAdd}
+        style={{
+          display: 'flex',
+          flexDirection: mobile ? 'column' : 'row',
+          gap: mobile ? 10 : 16,
+          alignItems: mobile ? 'stretch' : 'flex-end',
+          marginBottom: 18,
+        }}
+      >
+        <div style={{ flex: 1, display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: mobile ? 10 : 8 }}>
+          <input
+            type="date"
+            value={newExpense.date || ''}
+            onChange={e => setNewExpense({ ...newExpense, date: e.target.value })}
+            required
+            style={{ flex: 1, minWidth: 0, padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15 }}
+          />
+          <input
+            type="text"
+            placeholder="Item Name"
+            value={newExpense.item_name || ''}
+            onChange={e => setNewExpense({ ...newExpense, item_name: e.target.value })}
+            required
+            style={{ flex: 2, minWidth: 0, padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15 }}
+          />
+        </div>
+        <div style={{ flex: 1, display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: mobile ? 10 : 8 }}>
+          <input
+            type="number"
+            placeholder="Amount"
+            value={newExpense.amount || ''}
+            onChange={e => setNewExpense({ ...newExpense, amount: Number(e.target.value) })}
+            required
+            min="0"
+            step="0.01"
+            style={{ flex: 1, minWidth: 0, padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15 }}
+          />
+          <select
+            value={newExpense.category_id || ''}
+            onChange={e => setNewExpense({ ...newExpense, category_id: e.target.value })}
+            required
+            style={{ flex: 1, minWidth: 0, padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15 }}
+          >
+            {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+          </select>
+        </div>
+        <div style={{ flex: 2, display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: mobile ? 10 : 8 }}>
+          <input
+            type="text"
+            placeholder="Notes"
+            value={newExpense.notes || ''}
+            onChange={e => setNewExpense({ ...newExpense, notes: e.target.value })}
+            style={{ flex: 2, minWidth: 0, padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15 }}
+          />
+          <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 15 }}>
+            <input
+              type="checkbox"
+              checked={!!newExpense.is_recurring}
+              onChange={e => setNewExpense({ ...newExpense, is_recurring: e.target.checked })}
+              style={{ margin: 0 }}
+            />
+            Recurring
+          </label>
+          <button
+            type="submit"
+            style={{
+              background: 'linear-gradient(90deg, #6366f1 0%, #60a5fa 100%)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 6,
+              padding: '10px 0',
+              fontWeight: 600,
+              fontSize: 15,
+              cursor: 'pointer',
+              minWidth: 70,
+              boxShadow: '0 2px 8px 0 rgba(60,72,88,0.08)',
+              transition: 'background 0.2s',
+            }}
+          >Add</button>
+        </div>
       </form>
-      <table className="expense-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Item Name</th>
-            <th>Amount</th>
-            <th>Category</th>
-            <th>Notes</th>
-            <th>Recurring</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {expenses.map(exp => (
-            editingId === exp.id ? (
-              <tr key={exp.id} className="editing-row">
-                <td><input type="date" value={editExpense.date || ''} onChange={e => handleEditChange('date', e.target.value)} /></td>
-                <td><input type="text" value={editExpense.item_name || ''} onChange={e => handleEditChange('item_name', e.target.value)} /></td>
-                <td><input type="number" value={editExpense.amount || ''} onChange={e => handleEditChange('amount', Number(e.target.value))} min="0" step="0.01" /></td>
-                <td>
-                  <select value={editExpense.category_id || ''} onChange={e => handleEditChange('category_id', e.target.value)}>
-                    {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
-                  </select>
-                </td>
-                <td><input type="text" value={editExpense.notes || ''} onChange={e => handleEditChange('notes', e.target.value)} /></td>
-                <td><input type="checkbox" checked={!!editExpense.is_recurring} onChange={e => handleEditChange('is_recurring', !editExpense.is_recurring)} /></td>
-                <td>
-                  <button onClick={() => handleEditSave(exp.id)}>Save</button>
-                  <button onClick={() => setEditingId(null)}>Cancel</button>
-                </td>
-              </tr>
-            ) : (
-              <tr key={exp.id}>
-                <td>{exp.date}</td>
-                <td>{exp.item_name}</td>
-                <td>{exp.amount.toFixed(2)}</td>
-                <td>{categories.find(cat => cat.id === exp.category_id)?.name || '—'}</td>
-                <td>{exp.notes}</td>
-                <td>{exp.is_recurring ? 'Yes' : 'No'}</td>
-                <td>
-                  <button onClick={() => handleEdit(exp)}>Edit</button>
-                  <button onClick={() => handleDelete(exp.id)}>Delete</button>
-                </td>
-              </tr>
-            )
-          ))}
-        </tbody>
-      </table>
+      {/* Responsive Table */}
+      <div style={{ overflowX: 'auto', width: '100%' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
+          <thead>
+            <tr style={{ background: '#f1f5f9' }}>
+              <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Date</th>
+              <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Item</th>
+              <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Amount</th>
+              <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Category</th>
+              <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Notes</th>
+              <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Recurring</th>
+              <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {expenses.map(exp => (
+              editingId === exp.id ? (
+                <tr key={exp.id} style={{ background: '#f8fafc' }}>
+                  <td><input type="date" value={editExpense.date || ''} onChange={e => handleEditChange('date', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1' }} /></td>
+                  <td><input type="text" value={editExpense.item_name || ''} onChange={e => handleEditChange('item_name', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1' }} /></td>
+                  <td><input type="number" value={editExpense.amount || ''} onChange={e => handleEditChange('amount', Number(e.target.value))} min="0" step="0.01" style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1' }} /></td>
+                  <td>
+                    <select value={editExpense.category_id || ''} onChange={e => handleEditChange('category_id', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1' }}>
+                      {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+                    </select>
+                  </td>
+                  <td><input type="text" value={editExpense.notes || ''} onChange={e => handleEditChange('notes', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1' }} /></td>
+                  <td><input type="checkbox" checked={!!editExpense.is_recurring} onChange={e => handleEditChange('is_recurring', !editExpense.is_recurring)} /></td>
+                  <td>
+                    <button onClick={() => handleEditSave(exp.id)} style={{ marginRight: 6, background: '#6366f1', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Save</button>
+                    <button onClick={() => setEditingId(null)} style={{ background: '#f1f5f9', color: '#334155', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                  </td>
+                </tr>
+              ) : (
+                <tr key={exp.id}>
+                  <td>{exp.date}</td>
+                  <td>{exp.item_name}</td>
+                  <td>{exp.amount.toFixed(2)}</td>
+                  <td>{categories.find(cat => cat.id === exp.category_id)?.name || '—'}</td>
+                  <td>{exp.notes}</td>
+                  <td>{exp.is_recurring ? 'Yes' : 'No'}</td>
+                  <td>
+                    <button onClick={() => handleEdit(exp)} style={{ marginRight: 6, background: '#6366f1', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Edit</button>
+                    <button onClick={() => handleDelete(exp.id)} style={{ background: '#f1f5f9', color: '#334155', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Delete</button>
+                  </td>
+                </tr>
+              )
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
