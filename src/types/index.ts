@@ -71,3 +71,18 @@ export interface RecurringPayment {
   status: 'active' | 'paused' | 'cancelled';
   last_logged?: string;
 }
+
+// Todo type
+export interface Todo {
+  id: string;
+  household_id: string;
+  title: string;
+  description?: string;
+  completed: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  completed_at?: string;
+  due_date?: string;
+  priority: 'low' | 'medium' | 'high';
+}
