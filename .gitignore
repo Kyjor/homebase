@@ -88,3 +88,8 @@ typings/
 .dynamodb/
 
 gen/apple/
+
+# Demo files
+.env.local
+src/DemoApp.tsx
+src/components/TodoManagerDemo.tsx
