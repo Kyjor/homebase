@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useHousehold } from '../contexts/HouseholdContext';
 import { Expense, Category } from '../types';
 import { getExpensesByHousehold, addExpense, updateExpense, deleteExpense } from '../services/expenseService';
@@ -6,8 +6,11 @@ import { getCategoriesByHousehold } from '../services/categoryService';
 import supabase from '../services/supabaseClient';
 import { getCache, setCache } from '../utils/cacheManager';
 import { useAuth } from '../contexts/AuthContext';
+import { isMobile } from '../styles/theme';
+import { validateAmount, validateItemName, validateDate } from '../utils/validation';
+import styles from './ExpenseTable.module.css';
 
-const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 700;
+const ITEMS_PER_PAGE = 20;
 
 const ExpenseTable: React.FC = () => {
   const { household } = useHousehold();
@@ -20,6 +23,8 @@ const ExpenseTable: React.FC = () => {
   const [syncing, setSyncing] = useState(false);
   const [queuedMutations, setQueuedMutations] = useState<any[]>([]);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
   const { user } = useAuth();
 
   useEffect(() => {
@@ -129,27 +134,59 @@ const ExpenseTable: React.FC = () => {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!household) return;
+    if (!household || !user) return;
+
+    const errors: { [key: string]: string } = {};
+    const itemNameValidation = validateItemName(newExpense.item_name || '');
+    if (!itemNameValidation.isValid) {
+      errors.item_name = itemNameValidation.error || '';
+    }
+
+    const amountValidation = validateAmount(newExpense.amount || 0);
+    if (!amountValidation.isValid) {
+      errors.amount = amountValidation.error || '';
+    }
+
+    const dateValidation = validateDate(newExpense.date || new Date().toISOString().slice(0, 10));
+    if (!dateValidation.isValid) {
+      errors.date = dateValidation.error || '';
+    }
+
+    if (!newExpense.category_id) {
+      errors.category_id = 'Category is required';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    setValidationErrors({});
+    setError(null);
+
     const expenseData = {
       ...newExpense,
       household_id: household.id,
-      created_by: user?.id, // Use the actual user ID
+      created_by: user.id,
       is_recurring: !!newExpense.is_recurring,
       date: newExpense.date || new Date().toISOString().slice(0, 10),
       amount: Number(newExpense.amount) || 0,
       category_id: newExpense.category_id || categories[0]?.id || '',
       item_name: newExpense.item_name || '',
     } as any;
+
     if (!isOnline) {
       setExpenses([expenseData, ...expenses]);
       queueMutation({ type: 'add', data: expenseData });
       setNewExpense({ date: '', item_name: '', amount: 0, category_id: '', notes: '', is_recurring: false });
+      setCurrentPage(1);
       return;
     }
     try {
       const expense = await addExpense(expenseData);
       setExpenses([expense, ...expenses]);
       setNewExpense({ date: '', item_name: '', amount: 0, category_id: '', notes: '', is_recurring: false });
+      setCurrentPage(1);
     } catch (e: any) {
       setError(e.message);
     }
@@ -165,6 +202,30 @@ const ExpenseTable: React.FC = () => {
   };
 
   const handleEditSave = async (id: string) => {
+    const errors: { [key: string]: string } = {};
+    const itemNameValidation = validateItemName(editExpense.item_name || '');
+    if (!itemNameValidation.isValid) {
+      errors.item_name = itemNameValidation.error || '';
+    }
+
+    const amountValidation = validateAmount(editExpense.amount || 0);
+    if (!amountValidation.isValid) {
+      errors.amount = amountValidation.error || '';
+    }
+
+    const dateValidation = validateDate(editExpense.date || new Date().toISOString().slice(0, 10));
+    if (!dateValidation.isValid) {
+      errors.date = dateValidation.error || '';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    setValidationErrors({});
+    setError(null);
+
     if (!isOnline) {
       setExpenses(expenses.map(exp => (exp.id === id ? { ...exp, ...editExpense } : exp)));
       queueMutation({ type: 'update', id, data: editExpense });
@@ -197,154 +258,204 @@ const ExpenseTable: React.FC = () => {
     }
   };
 
-  // Responsive styles
   const mobile = isMobile();
 
+  // Pagination logic
+  const totalPages = Math.ceil(expenses.length / ITEMS_PER_PAGE);
+  const paginatedExpenses = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    return expenses.slice(start, end);
+  }, [expenses, currentPage]);
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
   return (
-    <div style={{
-      background: '#fff',
-      borderRadius: 14,
-      boxShadow: '0 4px 24px 0 rgba(60,72,88,0.10)',
-      padding: mobile ? '1.2rem 0.5rem' : '2rem 2.5rem',
-      margin: mobile ? '12px 0' : '32px 0',
-      maxWidth: '100vw',
-      width: '100%',
-      boxSizing: 'border-box',
-      marginLeft: 'auto',
-      marginRight: 'auto',
-    }}>
-      {syncing && <div style={{ background: '#e3f2fd', color: '#1565c0', padding: '4px 0', textAlign: 'center', fontWeight: 600, borderRadius: 6, marginBottom: 10 }}>Syncing offline changes...</div>}
-      {error && <div style={{ background: '#fee2e2', color: '#b91c1c', borderRadius: 6, padding: '8px 12px', fontSize: 15, textAlign: 'center', marginBottom: 10, fontWeight: 500 }}>{error}</div>}
+    <div className={`${styles.container} ${mobile ? styles.containerMobile : ''}`}>
+      {syncing && <div className={styles.syncingMessage}>Syncing offline changes...</div>}
+      {error && <div className={styles.errorMessage}>{error}</div>}
+      {Object.keys(validationErrors).length > 0 && (
+        <div className={styles.errorMessage}>
+          {Object.values(validationErrors).join(', ')}
+        </div>
+      )}
       {/* Add Expense Form */}
       <form
-        className="expense-add-row"
         onSubmit={handleAdd}
-        style={{
-          display: 'flex',
-          flexDirection: mobile ? 'column' : 'row',
-          gap: mobile ? 10 : 16,
-          alignItems: mobile ? 'stretch' : 'flex-end',
-          marginBottom: 18,
-        }}
+        className={`${styles.form} ${mobile ? styles.formMobile : ''}`}
       >
-        <div style={{ flex: 1, display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: mobile ? 10 : 8 }}>
+        <div className={`${styles.formGroup} ${mobile ? styles.formGroupMobile : ''}`}>
           <input
             type="date"
             value={newExpense.date || ''}
-            onChange={e => setNewExpense({ ...newExpense, date: e.target.value })}
+            onChange={e => {
+              setNewExpense({ ...newExpense, date: e.target.value });
+              if (validationErrors.date) {
+                setValidationErrors({ ...validationErrors, date: '' });
+              }
+            }}
             required
-            style={{ flex: 1, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
+            className={`${styles.input} ${styles.inputDate}`}
           />
           <input
             type="text"
             placeholder="Name"
             value={newExpense.item_name || ''}
-            onChange={e => setNewExpense({ ...newExpense, item_name: e.target.value })}
+            onChange={e => {
+              setNewExpense({ ...newExpense, item_name: e.target.value });
+              if (validationErrors.item_name) {
+                setValidationErrors({ ...validationErrors, item_name: '' });
+              }
+            }}
             required
-            style={{ flex: 2, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
+            className={`${styles.input} ${styles.inputName}`}
           />
         </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: mobile ? 10 : 8 }}>
+        <div className={`${styles.formGroup} ${mobile ? styles.formGroupMobile : ''}`}>
           <input
             type="number"
             placeholder="Price"
             value={newExpense.amount || ''}
-            onChange={e => setNewExpense({ ...newExpense, amount: Number(e.target.value) })}
+            onChange={e => {
+              setNewExpense({ ...newExpense, amount: Number(e.target.value) });
+              if (validationErrors.amount) {
+                setValidationErrors({ ...validationErrors, amount: '' });
+              }
+            }}
             required
             min="0"
             step="0.01"
-            style={{ flex: 1, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
+            className={`${styles.input} ${styles.inputAmount}`}
           />
           <select
             value={newExpense.category_id || ''}
-            onChange={e => setNewExpense({ ...newExpense, category_id: e.target.value })}
+            onChange={e => {
+              setNewExpense({ ...newExpense, category_id: e.target.value });
+              if (validationErrors.category_id) {
+                setValidationErrors({ ...validationErrors, category_id: '' });
+              }
+            }}
             required
-            style={{ flex: 1, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
+            className={styles.select}
           >
             {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
           </select>
         </div>
-        <div style={{ flex: 2, display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: mobile ? 10 : 8 }}>
+        <div className={`${styles.formGroup} ${styles.formGroupLarge} ${mobile ? styles.formGroupMobile : ''}`}>
           <input
             type="text"
             placeholder="Notes"
             value={newExpense.notes || ''}
             onChange={e => setNewExpense({ ...newExpense, notes: e.target.value })}
-            style={{ flex: 2, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
+            className={`${styles.input} ${styles.inputNotes}`}
           />
-          <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 15 }}>
+          <label className={styles.checkboxLabel}>
             <input
               type="checkbox"
               checked={!!newExpense.is_recurring}
               onChange={e => setNewExpense({ ...newExpense, is_recurring: e.target.checked })}
-              style={{ margin: 0 }}
+              className={styles.checkbox}
             />
             Recurring
           </label>
           <button
             type="submit"
-            style={{
-              background: 'linear-gradient(90deg, #6366f1 0%, #60a5fa 100%)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 6,
-              padding: '10px 0',
-              fontWeight: 600,
-              fontSize: 15,
-              cursor: 'pointer',
-              minWidth: 70,
-              width: mobile ? '100%' : undefined,
-              boxShadow: '0 2px 8px 0 rgba(60,72,88,0.08)',
-              transition: 'background 0.2s',
-            }}
+            className={`${styles.submitButton} ${mobile ? styles.submitButtonMobile : ''}`}
           >Add</button>
         </div>
       </form>
       {/* Responsive Table */}
-      <div style={{ overflowX: 'auto', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: mobile ? undefined : 600, boxSizing: 'border-box' }}>
-          <thead>
-            <tr style={{ background: '#f1f5f9' }}>
-              <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Date</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Item</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Amount</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Category</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Notes</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Recurring</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, fontSize: 15, textAlign: 'left', whiteSpace: 'nowrap' }}>Actions</th>
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead className={styles.tableHeader}>
+            <tr>
+              <th className={styles.tableHeaderCell}>Date</th>
+              <th className={styles.tableHeaderCell}>Item</th>
+              <th className={styles.tableHeaderCell}>Amount</th>
+              <th className={styles.tableHeaderCell}>Category</th>
+              <th className={styles.tableHeaderCell}>Notes</th>
+              <th className={styles.tableHeaderCell}>Recurring</th>
+              <th className={styles.tableHeaderCell}>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {expenses.map(exp => (
+            {paginatedExpenses.map(exp => (
               editingId === exp.id ? (
-                <tr key={exp.id} style={{ background: '#f8fafc' }}>
-                  {/* default date is today */}
-                  <td><input type="date" value={editExpense.date || new Date().toISOString().slice(0, 10)} onChange={e => handleEditChange('date', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
-                  <td><input type="text" value={editExpense.item_name || ''} onChange={e => handleEditChange('item_name', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
-                  <td><input type="number" value={editExpense.amount || ''} onChange={e => handleEditChange('amount', Number(e.target.value))} min="0" step="0.01" style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
-                  <td>
-                    <select value={editExpense.category_id || ''} onChange={e => handleEditChange('category_id', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }}>
+                <tr key={exp.id} className={styles.tableRow}>
+                  <td className={styles.tableCell}>
+                    <input
+                      type="date"
+                      value={editExpense.date || new Date().toISOString().slice(0, 10)}
+                      onChange={e => handleEditChange('date', e.target.value)}
+                      className={styles.tableInput}
+                    />
+                  </td>
+                  <td className={styles.tableCell}>
+                    <input
+                      type="text"
+                      value={editExpense.item_name || ''}
+                      onChange={e => handleEditChange('item_name', e.target.value)}
+                      className={styles.tableInput}
+                    />
+                  </td>
+                  <td className={styles.tableCell}>
+                    <input
+                      type="number"
+                      value={editExpense.amount || ''}
+                      onChange={e => handleEditChange('amount', Number(e.target.value))}
+                      min="0"
+                      step="0.01"
+                      className={styles.tableInput}
+                    />
+                  </td>
+                  <td className={styles.tableCell}>
+                    <select
+                      value={editExpense.category_id || ''}
+                      onChange={e => handleEditChange('category_id', e.target.value)}
+                      className={styles.tableInput}
+                    >
                       {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                     </select>
                   </td>
-                  <td><input type="text" value={editExpense.notes || ''} onChange={e => handleEditChange('notes', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
-                  <td><input type="checkbox" checked={!!editExpense.is_recurring} onChange={() => handleEditChange('is_recurring', !editExpense.is_recurring)} /></td>
-                  <td>
-                    <button onClick={() => handleEditSave(exp.id)} style={{ marginRight: 6, background: '#6366f1', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Save</button>
-                    <button onClick={() => setEditingId(null)} style={{ background: '#f1f5f9', color: '#334155', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                  <td className={styles.tableCell}>
+                    <input
+                      type="text"
+                      value={editExpense.notes || ''}
+                      onChange={e => handleEditChange('notes', e.target.value)}
+                      className={styles.tableInput}
+                    />
+                  </td>
+                  <td className={styles.tableCell}>
+                    <input
+                      type="checkbox"
+                      checked={!!editExpense.is_recurring}
+                      onChange={() => handleEditChange('is_recurring', !editExpense.is_recurring)}
+                    />
+                  </td>
+                  <td className={styles.tableCell}>
+                    <button onClick={() => handleEditSave(exp.id)} className={`${styles.actionButton}`}>Save</button>
+                    <button onClick={() => {
+                      setEditingId(null);
+                      setEditExpense({});
+                      setValidationErrors({});
+                    }} className={`${styles.actionButton} ${styles.actionButtonSecondary}`}>Cancel</button>
                   </td>
                 </tr>
               ) : (
                 <tr key={exp.id}>
-                  <td>{exp.date}</td>
-                  <td>{exp.item_name}</td>
-                  <td>{exp.amount.toFixed(2)}</td>
-                  <td>{categories.find(cat => cat.id === exp.category_id)?.name || '—'}</td>
-                  <td>{exp.notes}</td>
-                  <td>{exp.is_recurring ? 'Yes' : 'No'}</td>
-                  <td>
-                    <button onClick={() => handleEdit(exp)} style={{ marginRight: 6, background: '#6366f1', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Edit</button>
-                    <button onClick={() => handleDelete(exp.id)} style={{ background: '#f1f5f9', color: '#334155', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Delete</button>
+                  <td className={styles.tableCell}>{exp.date}</td>
+                  <td className={styles.tableCell}>{exp.item_name}</td>
+                  <td className={styles.tableCell}>${exp.amount.toFixed(2)}</td>
+                  <td className={styles.tableCell}>{categories.find(cat => cat.id === exp.category_id)?.name || '—'}</td>
+                  <td className={styles.tableCell}>{exp.notes}</td>
+                  <td className={styles.tableCell}>{exp.is_recurring ? 'Yes' : 'No'}</td>
+                  <td className={styles.tableCell}>
+                    <button onClick={() => handleEdit(exp)} className={`${styles.actionButton}`}>Edit</button>
+                    <button onClick={() => handleDelete(exp.id)} className={`${styles.actionButton} ${styles.actionButtonSecondary}`}>Delete</button>
                   </td>
                 </tr>
               )
@@ -352,6 +463,27 @@ const ExpenseTable: React.FC = () => {
           </tbody>
         </table>
       </div>
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className={styles.paginationButton}
+          >
+            Previous
+          </button>
+          <span className={styles.paginationInfo}>
+            Page {currentPage} of {totalPages} ({expenses.length} total)
+          </span>
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className={styles.paginationButton}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -4,8 +4,9 @@ import { Category } from '../types';
 import { getCategoriesByHousehold, addCategory, updateCategory, deleteCategory } from '../services/categoryService';
 import supabase from '../services/supabaseClient';
 import { getCache, setCache } from '../utils/cacheManager';
-
-const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 700;
+import { isMobile } from '../styles/theme';
+import { validateCategoryName } from '../utils/validation';
+import styles from './CategoryManager.module.css';
 
 const CategoryManager: React.FC = () => {
   const { household } = useHousehold();
@@ -18,6 +19,7 @@ const CategoryManager: React.FC = () => {
   const [syncing, setSyncing] = useState(false);
   const [queuedMutations, setQueuedMutations] = useState<any[]>([]);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -128,7 +130,17 @@ const CategoryManager: React.FC = () => {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!household || !newCategory.trim()) return;
+    if (!household) return;
+    
+    const validation = validateCategoryName(newCategory);
+    if (!validation.isValid) {
+      setValidationError(validation.error || 'Invalid category name');
+      return;
+    }
+    
+    setValidationError(null);
+    setError(null);
+    
     const catData = {
       household_id: household.id,
       name: newCategory.trim(),
@@ -155,6 +167,15 @@ const CategoryManager: React.FC = () => {
   };
 
   const handleEditSave = async (id: string) => {
+    const validation = validateCategoryName(editName);
+    if (!validation.isValid) {
+      setValidationError(validation.error || 'Invalid category name');
+      return;
+    }
+    
+    setValidationError(null);
+    setError(null);
+    
     if (!isOnline) {
       setCategories(categories.map(cat => (cat.id === id ? { ...cat, name: editName } : cat)));
       queueMutation({ type: 'update', id, data: { name: editName } });
@@ -188,78 +209,66 @@ const CategoryManager: React.FC = () => {
   };
 
   if (loading) return <div>Loading categories...</div>;
-  if (error) return <div className="category-error">{error}</div>;
+  if (error && !validationError) return <div className={styles.errorMessage}>{error}</div>;
 
   const mobile = isMobile();
 
   return (
-    <div style={{
-      background: '#fff',
-      borderRadius: 12,
-      boxShadow: '0 2px 12px 0 rgba(60,72,88,0.08)',
-      padding: mobile ? '1rem 0.5rem' : '1.5rem 1.5rem',
-      margin: mobile ? '10px 0' : '18px 0',
-      maxWidth: 420,
-      width: '100%',
-      boxSizing: 'border-box',
-      marginLeft: 'auto',
-      marginRight: 'auto',
-    }}>
-      <h3 style={{ fontWeight: 700, fontSize: mobile ? 18 : 22, color: '#2d3748', marginBottom: 10, textAlign: 'center' }}>Categories</h3>
-      {syncing && <div style={{ background: '#e3f2fd', color: '#1565c0', padding: '4px 0', textAlign: 'center', fontWeight: 600, borderRadius: 6, marginBottom: 10 }}>Syncing offline changes...</div>}
-      {error && <div style={{ background: '#fee2e2', color: '#b91c1c', borderRadius: 6, padding: '8px 12px', fontSize: 15, textAlign: 'center', marginBottom: 10, fontWeight: 500 }}>{error}</div>}
-      <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: mobile ? 10 : 8, marginBottom: 16 }}>
+    <div className={`${styles.container} ${mobile ? styles.containerMobile : ''}`}>
+      <h3 className={`${styles.heading} ${mobile ? styles.headingMobile : ''}`}>Categories</h3>
+      {syncing && <div className={styles.syncingMessage}>Syncing offline changes...</div>}
+      {(error || validationError) && (
+        <div className={styles.errorMessage}>{error || validationError}</div>
+      )}
+      <form onSubmit={handleAdd} className={`${styles.form} ${mobile ? styles.formMobile : ''}`}>
         <input
           type="text"
           placeholder="New category name"
           value={newCategory}
-          onChange={e => setNewCategory(e.target.value)}
+          onChange={e => {
+            setNewCategory(e.target.value);
+            if (validationError) setValidationError(null);
+          }}
           required
-          style={{ flex: 1, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
+          className={`${styles.input} ${validationError ? styles.inputError : ''}`}
         />
         <button
           type="submit"
-          style={{
-            background: 'linear-gradient(90deg, #6366f1 0%, #60a5fa 100%)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 6,
-            padding: '10px 0',
-            fontWeight: 600,
-            fontSize: 15,
-            cursor: 'pointer',
-            minWidth: 70,
-            width: mobile ? '100%' : undefined,
-            boxShadow: '0 2px 8px 0 rgba(60,72,88,0.08)',
-            transition: 'background 0.2s',
-          }}
+          className={`${styles.submitButton} ${mobile ? styles.submitButtonMobile : ''}`}
         >Add</button>
       </form>
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <ul className={styles.list}>
         {categories.map(cat => (
-          <li key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#f8fafc', borderRadius: 8, padding: '8px 10px' }}>
+          <li key={cat.id} className={styles.listItem}>
             {editingId === cat.id ? (
               <>
                 <input
                   type="text"
                   value={editName}
-                  onChange={e => setEditName(e.target.value)}
+                  onChange={e => {
+                    setEditName(e.target.value);
+                    if (validationError) setValidationError(null);
+                  }}
                   required
-                  style={{ flex: 1, minWidth: 0, width: '100%', padding: '8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
+                  className={styles.listItemInput}
                 />
-                <button onClick={() => handleEditSave(cat.id)} style={{ background: '#6366f1', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Save</button>
-                <button onClick={() => setEditingId(null)} style={{ background: '#f1f5f9', color: '#334155', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                <button onClick={() => handleEditSave(cat.id)} className={styles.actionButton}>Save</button>
+                <button onClick={() => {
+                  setEditingId(null);
+                  setEditName('');
+                  setValidationError(null);
+                }} className={`${styles.actionButton} ${styles.actionButtonSecondary}`}>Cancel</button>
               </>
             ) : (
               <>
-                <span style={{ flex: 1, fontWeight: 600, color: '#334155', fontSize: 15 }}>{cat.name}</span>
+                <span className={styles.listItemName}>{cat.name}</span>
                 {cat.type === 'custom' && (
                   <>
-                    <button onClick={() => handleEdit(cat)} style={{ background: '#6366f1', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer', marginRight: 4 }}>Rename</button>
-                    <button onClick={() => handleDelete(cat.id)} style={{ background: '#f1f5f9', color: '#334155', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Delete</button>
+                    <button onClick={() => handleEdit(cat)} className={styles.actionButton}>Rename</button>
+                    <button onClick={() => handleDelete(cat.id)} className={`${styles.actionButton} ${styles.actionButtonSecondary}`}>Delete</button>
                   </>
                 )}
-                {cat.type === 'default' && <span style={{ color: '#64748b', fontSize: 14, marginLeft: 6 }}>(default)</span>}
+                {cat.type === 'default' && <span className={styles.defaultLabel}>(default)</span>}
               </>
             )}
           </li>

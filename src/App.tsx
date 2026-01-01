@@ -10,6 +10,8 @@ import CategoryManager from './components/CategoryManager';
 import BudgetManager from './components/BudgetManager';
 import RecurringPayments from './components/RecurringPayments';
 import ShoppingListManager from './components/ShoppingListManager';
+import Calendar from './components/Calendar';
+import HouseholdMembers from './components/HouseholdMembers';
 
 const App: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
@@ -51,7 +53,7 @@ type ModalKey = 'categories' | 'budgets' | 'recurring' | null;
 
 const HouseholdGate: React.FC = () => {
   const { household, loading: householdLoading } = useHousehold();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'shopping'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'shopping' | 'calendar' | 'members'>('dashboard');
   const [modalOpen, setModalOpen] = useState<ModalKey>(null);
   const [manageMenuOpen, setManageMenuOpen] = useState(false);
 
@@ -132,6 +134,36 @@ const HouseholdGate: React.FC = () => {
             transition: 'background 0.2s',
           }}
         >Shopping Lists</button>
+        <button
+          onClick={() => setActiveTab('calendar')}
+          style={{
+            flex: 1,
+            padding: '12px 0',
+            background: activeTab === 'calendar' ? 'linear-gradient(90deg, #6366f1 0%, #60a5fa 100%)' : 'none',
+            color: activeTab === 'calendar' ? '#fff' : '#334155',
+            border: 'none',
+            fontWeight: 600,
+            fontSize: 16,
+            cursor: 'pointer',
+            borderBottom: activeTab === 'calendar' ? '2px solid #6366f1' : '2px solid transparent',
+            transition: 'background 0.2s',
+          }}
+        >Calendar</button>
+        <button
+          onClick={() => setActiveTab('members')}
+          style={{
+            flex: 1,
+            padding: '12px 0',
+            background: activeTab === 'members' ? 'linear-gradient(90deg, #6366f1 0%, #60a5fa 100%)' : 'none',
+            color: activeTab === 'members' ? '#fff' : '#334155',
+            border: 'none',
+            fontWeight: 600,
+            fontSize: 16,
+            cursor: 'pointer',
+            borderBottom: activeTab === 'members' ? '2px solid #6366f1' : '2px solid transparent',
+            transition: 'background 0.2s',
+          }}
+        >Members</button>
       </div>
       <main style={{ flex: 1, padding: isMobile ? 10 : 24, maxWidth: 1200, margin: '0 auto', width: isMobile ? '95%' : '100%' }}>
         {activeTab === 'dashboard' ? (
@@ -291,6 +323,10 @@ const HouseholdGate: React.FC = () => {
               </div>
             )}
           </>
+        ) : activeTab === 'calendar' ? (
+          <Calendar />
+        ) : activeTab === 'members' ? (
+          <HouseholdMembers />
         ) : (
           <ShoppingListManager />
         )}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useHousehold } from '../contexts/HouseholdContext';
 import { useAuth } from '../contexts/AuthContext';
+import { validateHouseholdName } from '../utils/validation';
 
 const HouseholdOnboarding: React.FC = () => {
   const { household, createHousehold, joinHousehold, loading, error } = useHousehold();
@@ -8,6 +9,7 @@ const HouseholdOnboarding: React.FC = () => {
   const [mode, setMode] = useState<'create' | 'join'>('create');
   const [name, setName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   if (!user) return null;
   if (household) return (
@@ -51,11 +53,22 @@ const HouseholdOnboarding: React.FC = () => {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    const validation = validateHouseholdName(name);
+    if (!validation.isValid) {
+      setValidationError(validation.error || 'Invalid household name');
+      return;
+    }
+    setValidationError(null);
     await createHousehold(name);
   };
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!inviteCode.trim()) {
+      setValidationError('Invite code is required');
+      return;
+    }
+    setValidationError(null);
     await joinHousehold(inviteCode);
   };
 
@@ -118,12 +131,15 @@ const HouseholdOnboarding: React.FC = () => {
               type="text"
               placeholder="Household Name"
               value={name}
-              onChange={e => setName(e.target.value)}
+              onChange={e => {
+                setName(e.target.value);
+                if (validationError) setValidationError(null);
+              }}
               required
               style={{
                 padding: '10px 12px',
                 borderRadius: 6,
-                border: '1px solid #cbd5e1',
+                border: validationError ? '1px solid #b91c1c' : '1px solid #cbd5e1',
                 fontSize: 16,
               }}
             />
@@ -152,12 +168,15 @@ const HouseholdOnboarding: React.FC = () => {
               type="text"
               placeholder="Invite Code"
               value={inviteCode}
-              onChange={e => setInviteCode(e.target.value)}
+              onChange={e => {
+                setInviteCode(e.target.value);
+                if (validationError) setValidationError(null);
+              }}
               required
               style={{
                 padding: '10px 12px',
                 borderRadius: 6,
-                border: '1px solid #cbd5e1',
+                border: validationError ? '1px solid #b91c1c' : '1px solid #cbd5e1',
                 fontSize: 16,
               }}
             />
@@ -180,7 +199,7 @@ const HouseholdOnboarding: React.FC = () => {
             >Join</button>
           </form>
         )}
-        {error && (
+        {(error || validationError) && (
           <div style={{
             background: '#fee2e2',
             color: '#b91c1c',
@@ -191,7 +210,7 @@ const HouseholdOnboarding: React.FC = () => {
             marginTop: 4,
             fontWeight: 500,
           }}>
-            {error}
+            {error || validationError}
           </div>
         )}
       </div>

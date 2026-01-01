@@ -71,3 +71,16 @@ export interface RecurringPayment {
   status: 'active' | 'paused' | 'cancelled';
   last_logged?: string;
 }
+
+// Reminder type
+export interface Reminder {
+  id: string;
+  household_id: string;
+  title: string;
+  description?: string;
+  date: string; // YYYY-MM-DD
+  time?: string; // HH:MM
+  created_by: string;
+  created_at: string;
+  is_completed: boolean;
+}

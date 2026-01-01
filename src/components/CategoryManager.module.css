@@ -1,0 +1,160 @@
+.container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px 0 rgba(60,72,88,0.08);
+  padding: 1.5rem 1.5rem;
+  margin: 18px 0;
+  max-width: 420px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.containerMobile {
+  padding: 1rem 0.5rem;
+  margin: 10px 0;
+}
+
+.heading {
+  font-weight: 700;
+  font-size: 22px;
+  color: #2d3748;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.headingMobile {
+  font-size: 18px;
+}
+
+.syncingMessage {
+  background: #e3f2fd;
+  color: #1565c0;
+  padding: 4px 0;
+  text-align: center;
+  font-weight: 600;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.errorMessage {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 15px;
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.form {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.formMobile {
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 10px 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.inputError {
+  border-color: #b91c1c;
+}
+
+.submitButton {
+  background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 0;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  min-width: 70px;
+  box-shadow: 0 2px 8px 0 rgba(60,72,88,0.08);
+  transition: background 0.2s;
+}
+
+.submitButtonMobile {
+  width: 100%;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.listItemInput {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.listItemName {
+  flex: 1;
+  font-weight: 600;
+  color: #334155;
+  font-size: 15px;
+}
+
+.actionButton {
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 4px;
+}
+
+.actionButtonSecondary {
+  background: #f1f5f9;
+  color: #334155;
+  margin-right: 0;
+}
+
+.defaultLabel {
+  color: #64748b;
+  font-size: 14px;
+  margin-left: 6px;
+}
+
+.errorText {
+  color: #b91c1c;
+  font-size: 12px;
+  margin-top: 4px;
+}

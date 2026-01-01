@@ -1,0 +1,273 @@
+.container {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 24px 0 rgba(60,72,88,0.10);
+  padding: 2rem 2.5rem;
+  margin: 32px 0;
+  max-width: 900px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.containerMobile {
+  padding: 1.2rem 0.5rem;
+  margin: 18px 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-weight: 700;
+  font-size: 24px;
+  color: #2d3748;
+}
+
+.navButton {
+  background: #f1f5f9;
+  color: #334155;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.navButton:hover {
+  background: #e5e7eb;
+}
+
+.currentMonth {
+  font-weight: 600;
+  font-size: 18px;
+  color: #334155;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.dayHeader {
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #64748b;
+  padding: 8px 0;
+}
+
+.dayCell {
+  aspect-ratio: 1;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  background: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.dayCell:hover {
+  background: #f8fafc;
+}
+
+.dayCellOtherMonth {
+  color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.dayCellToday {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+
+.dayNumber {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.reminderDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6366f1;
+  margin: 2px 0;
+}
+
+.reminderDotCompleted {
+  background: #22c55e;
+}
+
+.reminderList {
+  margin-top: 24px;
+}
+
+.reminderItem {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.reminderItemCompleted {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+.reminderContent {
+  flex: 1;
+}
+
+.reminderTitle {
+  font-weight: 600;
+  font-size: 15px;
+  color: #2d3748;
+  margin-bottom: 4px;
+}
+
+.reminderDescription {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.reminderTime {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.reminderActions {
+  display: flex;
+  gap: 8px;
+}
+
+.actionButton {
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.actionButtonSecondary {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.actionButtonDanger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.18);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalContent {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(60,72,88,0.18);
+  padding: 28px;
+  min-width: 400px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.modalTitle {
+  font-weight: 700;
+  font-size: 20px;
+  color: #2d3748;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6366f1;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.formGroup {
+  margin-bottom: 16px;
+}
+
+.formLabel {
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.formInput {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.formTextarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 15px;
+  box-sizing: border-box;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.errorMessage {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+

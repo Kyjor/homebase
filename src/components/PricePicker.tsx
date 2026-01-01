@@ -44,7 +44,7 @@ const PricePicker: React.FC<PricePickerProps> = ({
           visibleCount={visibleCount}
           optionItemHeight={optionItemHeight}
           classNames={{
-            optionItem: 'text-zinc-400 dark:text-zinc-500 text-2xl',
+            optionItem: 'text-zinc-400 text-2xl',
             highlightWrapper: 'invisible',
             highlightItem: 'invisible',
           }}
@@ -56,7 +56,7 @@ const PricePicker: React.FC<PricePickerProps> = ({
           visibleCount={visibleCount}
           optionItemHeight={optionItemHeight}
           classNames={{
-            optionItem: 'text-zinc-400 dark:text-zinc-500 text-2xl',
+            optionItem: 'text-zinc-400 text-2xl',
             highlightWrapper: 'invisible',
             highlightItem: 'invisible',
           }}

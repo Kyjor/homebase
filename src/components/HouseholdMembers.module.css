@@ -1,0 +1,154 @@
+.container {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 24px 0 rgba(60,72,88,0.10);
+  padding: 2rem 2.5rem;
+  margin: 32px 0;
+  max-width: 600px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.containerMobile {
+  padding: 1.2rem 0.5rem;
+  margin: 18px 0;
+}
+
+.heading {
+  font-weight: 700;
+  font-size: 24px;
+  color: #2d3748;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.membersList {
+  margin-bottom: 32px;
+}
+
+.memberItem {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.memberInfo {
+  flex: 1;
+}
+
+.memberName {
+  font-weight: 600;
+  font-size: 16px;
+  color: #2d3748;
+  margin-bottom: 4px;
+}
+
+.memberEmail {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.inviteSection {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 24px;
+}
+
+.inviteTitle {
+  font-weight: 700;
+  font-size: 18px;
+  color: #2d3748;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.inviteForm {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.inviteInput {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.inviteButton {
+  background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px 0 rgba(60,72,88,0.08);
+  transition: background 0.2s;
+}
+
+.inviteButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.inviteCodeSection {
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.inviteCodeLabel {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.inviteCode {
+  font-size: 20px;
+  font-weight: 700;
+  color: #334155;
+  letter-spacing: 1.5px;
+  font-family: monospace;
+}
+
+.copyButton {
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+.errorMessage {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.successMessage {
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
