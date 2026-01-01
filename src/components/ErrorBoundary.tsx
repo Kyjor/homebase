@@ -27,7 +27,22 @@ class ErrorBoundary extends Component<Props, State> {
     });
     
     // Log error to console for debugging
-    console.error('Error caught by boundary:', error, errorInfo);
+    console.error('=== ERROR CAUGHT BY BOUNDARY ===');
+    console.error('Error:', error);
+    console.error('Error Message:', error.message);
+    console.error('Error Stack:', error.stack);
+    console.error('Component Stack:', errorInfo.componentStack);
+    console.error('================================');
+    
+    // Also log to window for mobile debugging
+    if (typeof window !== 'undefined') {
+      (window as any).lastError = {
+        error: error.toString(),
+        stack: error.stack,
+        componentStack: errorInfo.componentStack,
+        timestamp: new Date().toISOString()
+      };
+    }
   }
 
   render() {
@@ -96,8 +111,8 @@ class ErrorBoundary extends Component<Props, State> {
               Refresh Page
             </button>
 
-            {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details style={{
+            {this.state.error && (
+              <details open style={{
                 marginTop: 24,
                 padding: 16,
                 background: '#f9fafb',
@@ -108,34 +123,65 @@ class ErrorBoundary extends Component<Props, State> {
                   cursor: 'pointer',
                   fontWeight: 600,
                   color: '#374151',
-                  marginBottom: 8
+                  marginBottom: 8,
+                  fontSize: 16
                 }}>
-                  Error Details (Development)
+                  Error Details (Click to expand/collapse)
                 </summary>
                 <div style={{
                   fontFamily: 'monospace',
-                  fontSize: 14,
+                  fontSize: 13,
                   color: '#dc2626',
                   background: '#fef2f2',
                   padding: 12,
                   borderRadius: 4,
                   overflow: 'auto',
-                  maxHeight: 200
+                  maxHeight: 300,
+                  wordBreak: 'break-word'
                 }}>
-                  <div style={{ marginBottom: 8 }}>
-                    <strong>Error:</strong> {this.state.error.toString()}
+                  <div style={{ marginBottom: 12, fontWeight: 600 }}>
+                    <strong>Error Message:</strong>
                   </div>
-                  {this.state.errorInfo && (
-                    <div>
-                      <strong>Component Stack:</strong>
+                  <div style={{ marginBottom: 16, padding: '8px 12px', background: '#fff', borderRadius: 4 }}>
+                    {this.state.error.toString()}
+                  </div>
+                  {this.state.error.stack && (
+                    <>
+                      <div style={{ marginBottom: 8, fontWeight: 600 }}>
+                        <strong>Stack Trace:</strong>
+                      </div>
                       <pre style={{
                         margin: '8px 0 0 0',
                         whiteSpace: 'pre-wrap',
-                        wordBreak: 'break-word'
+                        wordBreak: 'break-word',
+                        fontSize: 11,
+                        lineHeight: 1.4,
+                        padding: '8px 12px',
+                        background: '#fff',
+                        borderRadius: 4
+                      }}>
+                        {this.state.error.stack}
+                      </pre>
+                    </>
+                  )}
+                  {this.state.errorInfo && (
+                    <>
+                      <div style={{ marginTop: 16, marginBottom: 8, fontWeight: 600 }}>
+                        <strong>Component Stack:</strong>
+                      </div>
+                      <pre style={{
+                        margin: '8px 0 0 0',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                        fontSize: 11,
+                        lineHeight: 1.4,
+                        padding: '8px 12px',
+                        background: '#fff',
+                        borderRadius: 4
                       }}>
                         {this.state.errorInfo.componentStack}
                       </pre>
-                    </div>
+                    </>
                   )}
                 </div>
               </details>

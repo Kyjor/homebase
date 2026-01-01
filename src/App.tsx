@@ -12,10 +12,12 @@ import RecurringPayments from './components/RecurringPayments';
 import ShoppingListManager from './components/ShoppingListManager';
 import Calendar from './components/Calendar';
 import HouseholdMembers from './components/HouseholdMembers';
+import DebugPanel from './components/DebugPanel';
 
 const App: React.FC = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, error: authError } = useAuth();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [appError, setAppError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -28,7 +30,76 @@ const App: React.FC = () => {
     };
   }, []);
 
-  if (authLoading) return <div>Loading...</div>;
+  // Catch any errors in App component
+  useEffect(() => {
+    try {
+      if (authError) {
+        console.error('Auth error in App:', authError);
+        setAppError(`Authentication error: ${authError}`);
+      }
+    } catch (error) {
+      console.error('Error in App useEffect:', error);
+      setAppError(`Application error: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }, [authError]);
+
+  if (appError) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+        background: '#fef2f2'
+      }}>
+        <div style={{
+          background: '#fff',
+          padding: 24,
+          borderRadius: 12,
+          maxWidth: 500,
+          width: '100%',
+          border: '2px solid #dc2626'
+        }}>
+          <h2 style={{ color: '#dc2626', marginTop: 0 }}>⚠️ Application Error</h2>
+          <p style={{ color: '#6b7280', marginBottom: 16 }}>{appError}</p>
+          <button
+            onClick={() => {
+              setAppError(null);
+              window.location.reload();
+            }}
+            style={{
+              background: '#dc2626',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 6,
+              padding: '10px 20px',
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            Reload App
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (authLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 18,
+        color: '#64748b'
+      }}>
+        Loading...
+      </div>
+    );
+  }
+  
   if (!user) return <AuthForm />;
 
   return (
@@ -39,6 +110,7 @@ const App: React.FC = () => {
         </div>
       )}
       <HouseholdGate />
+      <DebugPanel />
     </HouseholdProvider>
   );
 };
