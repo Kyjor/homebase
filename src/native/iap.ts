@@ -191,6 +191,15 @@ export async function mockSubscription(): Promise<PurchaseResult> {
   return { ok: true, mock: true };
 }
 
+/** Vite DEV, or VITE_SUBSCRIPTION_BYPASS=true baked into the build. */
+export function isDevBypassEnabled(): boolean {
+  if (import.meta.env.DEV) return true;
+  const flag = String(import.meta.env.VITE_SUBSCRIPTION_BYPASS ?? "")
+    .trim()
+    .toLowerCase();
+  return flag === "1" || flag === "true" || flag === "yes";
+}
+
 export function isDevMockAllowed(): boolean {
-  return Boolean(import.meta.env.DEV);
+  return isDevBypassEnabled();
 }

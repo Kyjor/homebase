@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useHousehold } from '../contexts/HouseholdContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Reminder } from '../types';
-import { getRemindersByHousehold, getRemindersByDate, addReminder, updateReminder, deleteReminder } from '../services/reminderService';
+import { getRemindersByHousehold, addReminder, updateReminder, deleteReminder } from '../services/reminderService';
 import supabase from '../services/supabaseClient';
 import { isMobile } from '../styles/theme';
 import styles from './Calendar.module.css';

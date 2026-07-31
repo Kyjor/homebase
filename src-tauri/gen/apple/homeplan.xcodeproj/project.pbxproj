@@ -13,6 +13,7 @@
 		90A8FE6F74EB4197291C5BC6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2107784A2578421EDBC5E68A /* UIKit.framework */; };
 		92F7C4150B4F4216456D49DD /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5138919BFF047244785BA837 /* WebKit.framework */; };
 		93EBD6099A0BD0B6AACBE509 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467FED83360BF80B331DF3FB /* Metal.framework */; };
+		A5C3A86B65DA67A8D176B41B /* libPods-homeplan_iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C46DF1FD3C059D0612A7EEE3 /* libPods-homeplan_iOS.a */; };
 		AFCD03C0248BEEA9C78A0103 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 430934400A7DF185A5DB73D4 /* Security.framework */; };
 		B676F16B0D6C39295F350FBA /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 608A3E1DA396CF91EEA5D470 /* assets */; };
 		BD93564A1687A7DC5C14697F /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = BE2F670D93B96D8C0EA45BE4 /* main.mm */; };
@@ -31,6 +32,8 @@
 		608A3E1DA396CF91EEA5D470 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = SOURCE_ROOT; };
 		6422A968A722D54D0FE40B8C /* homeplan_iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = homeplan_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		685C102FDC38B7D7CDF3952A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		699A2DBFC5F5FB0F85D3C086 /* Pods-homeplan_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-homeplan_iOS.debug.xcconfig"; path = "Target Support Files/Pods-homeplan_iOS/Pods-homeplan_iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		69A2233DDFD9DB7B385152C3 /* Pods-homeplan_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-homeplan_iOS.release.xcconfig"; path = "Target Support Files/Pods-homeplan_iOS/Pods-homeplan_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		6B96878596299F6111FE8C46 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6E4DEEFBCC1594B9BA72F61E /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		7FDDFFC14458860264316DBC /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -39,6 +42,7 @@
 		B5CBDFF8AA5909D8658C1F6B /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B6479EBC1473F679BB545E6D /* main.rs */ = {isa = PBXFileReference; path = main.rs; sourceTree = "<group>"; };
 		BE2F670D93B96D8C0EA45BE4 /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		C46DF1FD3C059D0612A7EEE3 /* libPods-homeplan_iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-homeplan_iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE09D46B29B87D0726C0A562 /* bindings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bindings.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -55,6 +59,7 @@
 				AFCD03C0248BEEA9C78A0103 /* Security.framework in Frameworks */,
 				90A8FE6F74EB4197291C5BC6 /* UIKit.framework in Frameworks */,
 				92F7C4150B4F4216456D49DD /* WebKit.framework in Frameworks */,
+				A5C3A86B65DA67A8D176B41B /* libPods-homeplan_iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -73,6 +78,7 @@
 				CB9BECADEC1FB3A4F5086061 /* src */,
 				B3F2C1C78A07F9B60E1C7AF4 /* Frameworks */,
 				93F3ACF82B04B0131CE990D9 /* Products */,
+				BBA2CC16715695F8ABF33654 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -120,8 +126,19 @@
 				430934400A7DF185A5DB73D4 /* Security.framework */,
 				2107784A2578421EDBC5E68A /* UIKit.framework */,
 				5138919BFF047244785BA837 /* WebKit.framework */,
+				C46DF1FD3C059D0612A7EEE3 /* libPods-homeplan_iOS.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		BBA2CC16715695F8ABF33654 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				699A2DBFC5F5FB0F85D3C086 /* Pods-homeplan_iOS.debug.xcconfig */,
+				69A2233DDFD9DB7B385152C3 /* Pods-homeplan_iOS.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		C0A7354384562A7A23B3E134 /* Externals */ = {
@@ -157,6 +174,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 175B5AA7DBBE00A828A52448 /* Build configuration list for PBXNativeTarget "homeplan_iOS" */;
 			buildPhases = (
+				1B6C90EEBA7EB71A576137F2 /* [CP] Check Pods Manifest.lock */,
 				D27CA55AE4005F59D1839AC6 /* Build Rust Code */,
 				78B133DAC2F68A597F8A9D86 /* Sources */,
 				0621AB34C980E7F3A14A0497 /* Resources */,
@@ -167,8 +185,6 @@
 			dependencies = (
 			);
 			name = homeplan_iOS;
-			packageProductDependencies = (
-			);
 			productName = homeplan_iOS;
 			productReference = 6422A968A722D54D0FE40B8C /* homeplan_iOS.app */;
 			productType = "com.apple.product-type.application";
@@ -188,7 +204,6 @@
 				};
 			};
 			buildConfigurationList = 44CAEE8A380EE98EEF03531E /* Build configuration list for PBXProject "homeplan" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -198,6 +213,7 @@
 			mainGroup = 034254FFC205EB953AF612E6;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
+			productRefGroup = 93F3ACF82B04B0131CE990D9 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -220,6 +236,28 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		1B6C90EEBA7EB71A576137F2 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-homeplan_iOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		D27CA55AE4005F59D1839AC6 /* Build Rust Code */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -239,7 +277,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "npm run -- tauri ios xcode-script -v --platform ${PLATFORM_DISPLAY_NAME:?} --sdk-root ${SDKROOT:?} --framework-search-paths \"${FRAMEWORK_SEARCH_PATHS:?}\" --header-search-paths \"${HEADER_SEARCH_PATHS:?}\" --gcc-preprocessor-definitions \"${GCC_PREPROCESSOR_DEFINITIONS:-}\" --configuration ${CONFIGURATION:?} ${FORCE_COLOR} ${ARCHS:?}";
+			shellScript = "npm run -- tauri ios xcode-script -v --platform ${PLATFORM_DISPLAY_NAME:?} --sdk-root ${SDKROOT:?} --framework-search-paths \"${FRAMEWORK_SEARCH_PATHS:?}\" --header-search-paths \"${HEADER_SEARCH_PATHS:?}\" --gcc-preprocessor-definitions \"${GCC_PREPROCESSOR_DEFINITIONS:-}\" --configuration ${CONFIGURATION:?} ${ARCHS:?}";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -257,11 +295,10 @@
 /* Begin XCBuildConfiguration section */
 		02BBA33CF7FEF66FD5F27D03 /* debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 699A2DBFC5F5FB0F85D3C086 /* Pods-homeplan_iOS.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ARCHS = (
-					arm64,
-				);
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = homeplan_iOS/homeplan_iOS.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -273,12 +310,35 @@
 					"\".\"",
 				);
 				INFOPLIST_FILE = homeplan_iOS/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Homebase;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Homebase needs camera access so you can capture photos for house-care tasks.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Homebase needs photo access so you can attach pictures to house-care tasks.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				"LIBRARY_SEARCH_PATHS[arch=arm64]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
-				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = "$(inherited) $(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION)",
+					"$(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION)",
+					"$(SDKROOT)/usr/lib/swift",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=arm64]" = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION)",
+					"$(SDKROOT)/usr/lib/swift",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION)",
+					"$(SDKROOT)/usr/lib/swift",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.homeplan.app;
 				PRODUCT_NAME = Homebase;
 				SDKROOT = iphoneos;
@@ -332,7 +392,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -394,7 +454,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -408,11 +468,10 @@
 		};
 		ED251CB06793465C35E0EFCC /* release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 69A2233DDFD9DB7B385152C3 /* Pods-homeplan_iOS.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				ARCHS = (
-					arm64,
-				);
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = homeplan_iOS/homeplan_iOS.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -424,12 +483,35 @@
 					"\".\"",
 				);
 				INFOPLIST_FILE = homeplan_iOS/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Homebase;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Homebase needs camera access so you can capture photos for house-care tasks.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Homebase needs photo access so you can attach pictures to house-care tasks.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				"LIBRARY_SEARCH_PATHS[arch=arm64]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
-				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = "$(inherited) $(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION)",
+					"$(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION)",
+					"$(SDKROOT)/usr/lib/swift",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=arm64]" = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION)",
+					"$(SDKROOT)/usr/lib/swift",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION)",
+					"$(SDKROOT)/usr/lib/swift",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)",
+					"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.homeplan.app;
 				PRODUCT_NAME = Homebase;
 				SDKROOT = iphoneos;

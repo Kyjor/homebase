@@ -30,6 +30,7 @@ export default function SubscriptionPaywall() {
   const [priceLabel, setPriceLabel] = useState('$4.99/month');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [brandTaps, setBrandTaps] = useState(0);
 
   useEffect(() => {
     void fetchSubscriptionProduct().then((p) => {
@@ -37,10 +38,27 @@ export default function SubscriptionPaywall() {
     });
   }, []);
 
+  useEffect(() => {
+    if (brandTaps === 0) return;
+    const t = window.setTimeout(() => setBrandTaps(0), 2000);
+    return () => window.clearTimeout(t);
+  }, [brandTaps]);
+
   return (
     <div className={styles.screen}>
       <div className={styles.card}>
-        <p className={styles.brand}>Homebase</p>
+        <p
+          className={styles.brand}
+          onClick={() => {
+            const next = brandTaps + 1;
+            setBrandTaps(next);
+            if (next < 7) return;
+            setBrandTaps(0);
+            void mockSubscription().then(() => markEntitled());
+          }}
+        >
+          Homebase
+        </p>
         <h1 className={styles.title}>Try free for 30 days</h1>
         <p className={styles.lede}>
           Full household access — spending, shopping, house care, and shared calendars. Then{' '}

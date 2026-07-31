@@ -8,6 +8,7 @@ import {
 } from 'react';
 import {
   getCachedEntitlement,
+  isDevBypassEnabled,
   listenForSubscriptionPurchases,
   setCachedEntitlement,
   syncSubscriptionFromStore,
@@ -23,10 +24,17 @@ interface SubscriptionContextType {
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
-  const [entitled, setEntitled] = useState(() => getCachedEntitlement());
-  const [loading, setLoading] = useState(true);
+  const bypass = isDevBypassEnabled();
+  const [entitled, setEntitled] = useState(() => bypass || getCachedEntitlement());
+  const [loading, setLoading] = useState(!bypass);
 
   const refresh = useCallback(async () => {
+    if (isDevBypassEnabled()) {
+      setCachedEntitlement(true);
+      setEntitled(true);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const ok = await syncSubscriptionFromStore();
@@ -43,6 +51,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void refresh();
+    if (isDevBypassEnabled()) return;
     let unsub = () => {};
     void listenForSubscriptionPurchases(() => {
       markEntitled();
