@@ -49,9 +49,13 @@ const AuthForm: React.FC = () => {
   return (
     <div className={styles.container}>
       <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.brand}>Homebase</div>
         <h2 className={styles.heading}>
-          {mode === 'login' ? 'Login' : 'Sign Up'}
+          {mode === 'login' ? 'Welcome back' : 'Create your account'}
         </h2>
+        <p className={styles.subheading}>
+          Shared household spending, shopping, and home care.
+        </p>
         {mode === 'signup' && (
           <div>
             <input

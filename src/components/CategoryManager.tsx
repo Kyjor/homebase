@@ -4,9 +4,8 @@ import { Category } from '../types';
 import { getCategoriesByHousehold, addCategory, updateCategory, deleteCategory } from '../services/categoryService';
 import supabase from '../services/supabaseClient';
 import { getCache, setCache } from '../utils/cacheManager';
-import { isMobile } from '../styles/theme';
 import { validateCategoryName } from '../utils/validation';
-import styles from './CategoryManager.module.css';
+import styles from './ManagePanel.module.css';
 
 const CategoryManager: React.FC = () => {
   const { household } = useHousehold();
@@ -208,19 +207,16 @@ const CategoryManager: React.FC = () => {
     }
   };
 
-  if (loading) return <div>Loading categories...</div>;
-  if (error && !validationError) return <div className={styles.errorMessage}>{error}</div>;
-
-  const mobile = isMobile();
+  if (loading) return <div className={styles.hint}>Loading categories…</div>;
 
   return (
-    <div className={`${styles.container} ${mobile ? styles.containerMobile : ''}`}>
-      <h3 className={`${styles.heading} ${mobile ? styles.headingMobile : ''}`}>Categories</h3>
-      {syncing && <div className={styles.syncingMessage}>Syncing offline changes...</div>}
+    <div className={styles.panel}>
+      <p className={styles.hint}>Organize spending. Default categories can’t be deleted.</p>
+      {syncing && <p className={styles.hint}>Syncing offline changes…</p>}
       {(error || validationError) && (
-        <div className={styles.errorMessage}>{error || validationError}</div>
+        <div className={styles.error}>{error || validationError}</div>
       )}
-      <form onSubmit={handleAdd} className={`${styles.form} ${mobile ? styles.formMobile : ''}`}>
+      <form onSubmit={handleAdd} className={styles.form}>
         <input
           type="text"
           placeholder="New category name"
@@ -230,50 +226,65 @@ const CategoryManager: React.FC = () => {
             if (validationError) setValidationError(null);
           }}
           required
-          className={`${styles.input} ${validationError ? styles.inputError : ''}`}
+          className={styles.input}
         />
-        <button
-          type="submit"
-          className={`${styles.submitButton} ${mobile ? styles.submitButtonMobile : ''}`}
-        >Add</button>
+        <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`}>
+          Add
+        </button>
       </form>
-      <ul className={styles.list}>
-        {categories.map(cat => (
-          <li key={cat.id} className={styles.listItem}>
-            {editingId === cat.id ? (
-              <>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={e => {
-                    setEditName(e.target.value);
-                    if (validationError) setValidationError(null);
-                  }}
-                  required
-                  className={styles.listItemInput}
-                />
-                <button onClick={() => handleEditSave(cat.id)} className={styles.actionButton}>Save</button>
-                <button onClick={() => {
-                  setEditingId(null);
-                  setEditName('');
-                  setValidationError(null);
-                }} className={`${styles.actionButton} ${styles.actionButtonSecondary}`}>Cancel</button>
-              </>
-            ) : (
-              <>
-                <span className={styles.listItemName}>{cat.name}</span>
-                {cat.type === 'custom' && (
-                  <>
-                    <button onClick={() => handleEdit(cat)} className={styles.actionButton}>Rename</button>
-                    <button onClick={() => handleDelete(cat.id)} className={`${styles.actionButton} ${styles.actionButtonSecondary}`}>Delete</button>
-                  </>
-                )}
-                {cat.type === 'default' && <span className={styles.defaultLabel}>(default)</span>}
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
+      {categories.length === 0 ? (
+        <div className={styles.empty}>No categories yet.</div>
+      ) : (
+        <div className={styles.stack}>
+          {categories.map(cat => (
+            <div key={cat.id} className={styles.row}>
+              {editingId === cat.id ? (
+                <>
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={e => {
+                      setEditName(e.target.value);
+                      if (validationError) setValidationError(null);
+                    }}
+                    required
+                    className={styles.input}
+                  />
+                  <div className={styles.actions}>
+                    <button type="button" onClick={() => handleEditSave(cat.id)} className={`${styles.btn} ${styles.btnPrimary}`}>Save</button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingId(null);
+                        setEditName('');
+                        setValidationError(null);
+                      }}
+                      className={`${styles.btn} ${styles.btnSecondary}`}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span className={styles.label}>
+                    {cat.name}
+                    {cat.type === 'default' && (
+                      <span className={styles.meta}> · default</span>
+                    )}
+                  </span>
+                  {cat.type === 'custom' && (
+                    <div className={styles.actions}>
+                      <button type="button" onClick={() => handleEdit(cat)} className={`${styles.btn} ${styles.btnPrimary}`}>Rename</button>
+                      <button type="button" onClick={() => handleDelete(cat.id)} className={`${styles.btn} ${styles.btnDanger}`}>Delete</button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -5,8 +5,7 @@ import { getCategoriesByHousehold } from '../services/categoryService';
 import { getBudgetsByHousehold, addBudget, updateBudget, deleteBudget } from '../services/budgetService';
 import supabase from '../services/supabaseClient';
 import { getCache, setCache } from '../utils/cacheManager';
-
-const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 700;
+import styles from './ManagePanel.module.css';
 
 function getCurrentMonth() {
   const now = new Date();
@@ -187,76 +186,44 @@ const BudgetManager: React.FC = () => {
     setSaving(false);
   };
 
-  if (loading) return <div>Loading budgets...</div>;
-  if (error) return <div className="budget-error">{error}</div>;
-
-  const mobile = isMobile();
+  if (loading) return <div className={styles.hint}>Loading budgets…</div>;
 
   return (
-    <div style={{
-      background: '#fff',
-      borderRadius: 12,
-      boxShadow: '0 2px 12px 0 rgba(60,72,88,0.08)',
-      padding: mobile ? '1rem 0.5rem' : '1.5rem 1.5rem',
-      margin: mobile ? '10px 0' : '18px 0',
-      maxWidth: 420,
-      width: '100%',
-      boxSizing: 'border-box',
-      marginLeft: 'auto',
-      marginRight: 'auto',
-    }}>
-      <h3 style={{ fontWeight: 700, fontSize: mobile ? 18 : 22, color: '#2d3748', marginBottom: 10, textAlign: 'center' }}>Budgets ({getCurrentMonth()})</h3>
-      {syncing && <div style={{ background: '#e3f2fd', color: '#1565c0', padding: '4px 0', textAlign: 'center', fontWeight: 600, borderRadius: 6, marginBottom: 10 }}>Syncing offline changes...</div>}
-      {error && <div style={{ background: '#fee2e2', color: '#b91c1c', borderRadius: 6, padding: '8px 12px', fontSize: 15, textAlign: 'center', marginBottom: 10, fontWeight: 500 }}>{error}</div>}
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 15 }}>
-        <thead>
-          <tr style={{ background: '#f1f5f9' }}>
-            <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Category</th>
-            <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Monthly Limit</th>
-            <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Action</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className={styles.panel}>
+      <p className={styles.hint}>Monthly limits for {getCurrentMonth()}. Save each category after editing.</p>
+      {syncing && <p className={styles.hint}>Syncing offline changes…</p>}
+      {error && <div className={styles.error}>{error}</div>}
+      {categories.length === 0 ? (
+        <div className={styles.empty}>Add categories first, then set budgets here.</div>
+      ) : (
+        <div className={styles.stack}>
           {categories.map(cat => (
-            <tr key={cat.id} style={{ background: '#f8fafc' }}>
-              <td style={{ padding: '8px 6px', fontWeight: 600, color: '#334155' }}>{cat.name}</td>
-              <td style={{ padding: '8px 6px' }}>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={editLimits[cat.id] || ''}
-                  onChange={e => handleLimitChange(cat.id, e.target.value)}
-                  disabled={saving}
-                  style={{ width: mobile ? '100%' : 90, padding: '8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
-                />
-              </td>
-              <td style={{ padding: '8px 6px' }}>
-                <button
-                  onClick={() => handleSave(cat.id)}
-                  disabled={saving}
-                  style={{
-                    background: 'linear-gradient(90deg, #6366f1 0%, #60a5fa 100%)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 6,
-                    padding: '8px 0',
-                    fontWeight: 600,
-                    fontSize: 15,
-                    cursor: saving ? 'not-allowed' : 'pointer',
-                    minWidth: 70,
-                    width: mobile ? '100%' : undefined,
-                    boxShadow: '0 2px 8px 0 rgba(60,72,88,0.08)',
-                    transition: 'background 0.2s',
-                  }}
-                >
-                  {budgets.find(b => b.category_id === cat.id && b.month === getCurrentMonth()) ? 'Update' : 'Set'}
-                </button>
-              </td>
-            </tr>
+            <div key={cat.id} className={styles.row}>
+              <span className={styles.label}>{cat.name}</span>
+              <input
+                className={styles.input}
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Limit"
+                value={editLimits[cat.id] || ''}
+                onChange={e => handleLimitChange(cat.id, e.target.value)}
+                disabled={saving}
+              />
+              <button
+                type="button"
+                className={`${styles.btn} ${styles.btnPrimary}`}
+                onClick={() => handleSave(cat.id)}
+                disabled={saving}
+              >
+                {budgets.find(b => b.category_id === cat.id && b.month === getCurrentMonth())
+                  ? 'Update'
+                  : 'Set'}
+              </button>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      )}
     </div>
   );
 };

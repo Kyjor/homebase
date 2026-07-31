@@ -1,0 +1,73 @@
+{
+  "identifier" : "Homebase",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products Error"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "HOMEBASEPROGROUP01",
+      "localizations" : [
+        {
+          "description" : "",
+          "displayName" : "Homebase Pro",
+          "locale" : "en_US"
+        }
+      ],
+      "name" : "Homebase Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "4.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "HOMEBASEMONTHLY001",
+          "introductoryOffer" : {
+            "internalID" : "HOMEBASETRIAL00001",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1M"
+          },
+          "localizations" : [
+            {
+              "description" : "Full Homebase access. 1-month free trial, then monthly.",
+              "displayName" : "Homebase Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "homebase_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Homebase Monthly",
+          "subscriptionGroupID" : "HOMEBASEPROGROUP01",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

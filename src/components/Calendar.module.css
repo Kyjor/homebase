@@ -1,19 +1,22 @@
 .container {
   background: #fff;
+  border: 1px solid #e2e8f0;
   border-radius: 14px;
-  box-shadow: 0 4px 24px 0 rgba(60,72,88,0.10);
-  padding: 2rem 2.5rem;
-  margin: 32px 0;
-  max-width: 900px;
+  padding: 16px;
+  margin: 0;
+  max-width: 100%;
   width: 100%;
   box-sizing: border-box;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .containerMobile {
-  padding: 1.2rem 0.5rem;
-  margin: 18px 0;
+  padding: 14px;
+}
+
+@media (min-width: 700px) {
+  .container {
+    padding: 20px 24px;
+  }
 }
 
 .header {
@@ -54,7 +57,13 @@
 .calendarGrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+  gap: 4px;
+}
+
+@media (min-width: 700px) {
+  .calendarGrid {
+    gap: 8px;
+  }
 }
 
 .dayHeader {
@@ -69,7 +78,7 @@
   aspect-ratio: 1;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 8px;
+  padding: 4px;
   cursor: pointer;
   transition: background 0.2s;
   background: #fff;
@@ -77,6 +86,14 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (min-width: 700px) {
+  .dayCell {
+    padding: 8px;
+  }
 }
 
 .dayCell:hover {
@@ -95,8 +112,15 @@
 
 .dayNumber {
   font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 4px;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+@media (min-width: 700px) {
+  .dayNumber {
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
 }
 
 .reminderDot {

@@ -91,7 +91,10 @@ const HouseholdMembers: React.FC = () => {
 
   return (
     <div className={`${styles.container} ${mobile ? styles.containerMobile : ''}`}>
-      <h2 className={styles.heading}>Household Members</h2>
+      <h2 className={styles.heading}>{household.name}</h2>
+      <p style={{ margin: '0 0 16px', color: '#64748b', fontSize: 14 }}>
+        People in this household and how to invite more.
+      </p>
 
       {error && <div className={styles.errorMessage}>{error}</div>}
       {success && <div className={styles.successMessage}>{success}</div>}

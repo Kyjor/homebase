@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { AuthProvider } from './contexts/AuthContext';
+import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import "@ncdai/react-wheel-picker/style.css";
 
@@ -51,7 +52,9 @@ try {
     <React.StrictMode>
       <ErrorBoundary>
         <AuthProvider>
-          <App />
+          <SubscriptionProvider>
+            <App />
+          </SubscriptionProvider>
         </AuthProvider>
       </ErrorBoundary>
     </React.StrictMode>

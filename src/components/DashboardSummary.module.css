@@ -1,0 +1,117 @@
+.card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.month {
+  font-weight: 500;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.total {
+  font-size: 28px;
+  font-weight: 800;
+  color: #4338ca;
+  letter-spacing: -0.02em;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 12px;
+  align-items: center;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.catName {
+  font-weight: 600;
+  font-size: 14px;
+  color: #334155;
+}
+
+.amounts {
+  font-size: 14px;
+  color: #64748b;
+  text-align: right;
+}
+
+.spent {
+  font-weight: 700;
+  color: #4338ca;
+}
+
+.barRow {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.barTrack {
+  flex: 1;
+  background: #e2e8f0;
+  border-radius: 6px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.25s ease;
+}
+
+.barMeta {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.warn {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.empty {
+  color: #94a3b8;
+  font-size: 14px;
+  margin: 0;
+}
+
+.loading,
+.error {
+  padding: 16px;
+  color: #64748b;
+}
+
+.error {
+  color: #dc2626;
+}

@@ -10,8 +10,11 @@ configs:
 settingGroups:
   app:
     base:
-      PRODUCT_NAME: homeplan
+      PRODUCT_NAME: Homebase
       PRODUCT_BUNDLE_IDENTIFIER: com.homeplan.app
+      INFOPLIST_KEY_CFBundleDisplayName: Homebase
+      INFOPLIST_KEY_NSPhotoLibraryUsageDescription: Homebase needs photo access so you can attach pictures to house-care tasks.
+      INFOPLIST_KEY_NSCameraUsageDescription: Homebase needs camera access so you can capture photos for house-care tasks.
       DEVELOPMENT_TEAM: AKG5NATH99
 targetTemplates:
   app:

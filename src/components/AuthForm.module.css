@@ -17,18 +17,35 @@
   gap: 18px;
 }
 
+.brand {
+  text-align: center;
+  font-weight: 800;
+  font-size: 22px;
+  color: #4338ca;
+  letter-spacing: -0.02em;
+}
+
 .heading {
   text-align: center;
   margin: 0;
   font-weight: 700;
-  color: #2d3748;
+  font-size: 20px;
+  color: #0f172a;
+}
+
+.subheading {
+  text-align: center;
+  margin: -8px 0 0;
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.4;
 }
 
 .input {
   padding: 10px 12px;
   border-radius: 6px;
   border: 1px solid #cbd5e1;
-  font-size: 16;
+  font-size: 16px;
 }
 
 .inputError {

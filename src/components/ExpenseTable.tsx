@@ -17,7 +17,14 @@ const ExpenseTable: React.FC = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [newExpense, setNewExpense] = useState<Partial<Expense>>({ date: '', item_name: '', amount: 0, category_id: '', notes: '', is_recurring: false });
+  const [newExpense, setNewExpense] = useState<Partial<Expense>>({
+    date: new Date().toISOString().slice(0, 10),
+    item_name: '',
+    amount: 0,
+    category_id: '',
+    notes: '',
+    is_recurring: false,
+  });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editExpense, setEditExpense] = useState<Partial<Expense>>({});
   const [syncing, setSyncing] = useState(false);
@@ -178,14 +185,28 @@ const ExpenseTable: React.FC = () => {
     if (!isOnline) {
       setExpenses([expenseData, ...expenses]);
       queueMutation({ type: 'add', data: expenseData });
-      setNewExpense({ date: '', item_name: '', amount: 0, category_id: '', notes: '', is_recurring: false });
+      setNewExpense({
+        date: new Date().toISOString().slice(0, 10),
+        item_name: '',
+        amount: 0,
+        category_id: categories[0]?.id || '',
+        notes: '',
+        is_recurring: false,
+      });
       setCurrentPage(1);
       return;
     }
     try {
       const expense = await addExpense(expenseData);
       setExpenses([expense, ...expenses]);
-      setNewExpense({ date: '', item_name: '', amount: 0, category_id: '', notes: '', is_recurring: false });
+      setNewExpense({
+        date: new Date().toISOString().slice(0, 10),
+        item_name: '',
+        amount: 0,
+        category_id: categories[0]?.id || '',
+        notes: '',
+        is_recurring: false,
+      });
       setCurrentPage(1);
     } catch (e: any) {
       setError(e.message);
@@ -260,6 +281,13 @@ const ExpenseTable: React.FC = () => {
 
   const mobile = isMobile();
 
+  useEffect(() => {
+    if (categories.length > 0 && !newExpense.category_id) {
+      setNewExpense(prev => ({ ...prev, category_id: categories[0].id }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categories]);
+
   // Pagination logic
   const totalPages = Math.ceil(expenses.length / ITEMS_PER_PAGE);
   const paginatedExpenses = useMemo(() => {
@@ -283,7 +311,7 @@ const ExpenseTable: React.FC = () => {
           {Object.values(validationErrors).join(', ')}
         </div>
       )}
-      {/* Add Expense Form */}
+      <h3 className={styles.formTitle}>Add expense</h3>
       <form
         onSubmit={handleAdd}
         className={`${styles.form} ${mobile ? styles.formMobile : ''}`}
@@ -368,7 +396,91 @@ const ExpenseTable: React.FC = () => {
           >Add</button>
         </div>
       </form>
-      {/* Responsive Table */}
+      <div className={styles.cardList}>
+        {paginatedExpenses.length === 0 && (
+          <div className={styles.errorMessage} style={{ background: '#f8fafc', color: '#94a3b8' }}>
+            No expenses yet.
+          </div>
+        )}
+        {paginatedExpenses.map(exp => (
+          <div key={exp.id} className={styles.card}>
+            {editingId === exp.id ? (
+              <>
+                <input
+                  type="text"
+                  value={editExpense.item_name || ''}
+                  onChange={e => handleEditChange('item_name', e.target.value)}
+                  className={styles.input}
+                  placeholder="Item"
+                />
+                <div className={styles.form} style={{ marginBottom: 0 }}>
+                  <input
+                    type="date"
+                    value={editExpense.date || ''}
+                    onChange={e => handleEditChange('date', e.target.value)}
+                    className={styles.input}
+                  />
+                  <input
+                    type="number"
+                    value={editExpense.amount || ''}
+                    onChange={e => handleEditChange('amount', Number(e.target.value))}
+                    min="0"
+                    step="0.01"
+                    className={styles.input}
+                  />
+                  <select
+                    value={editExpense.category_id || ''}
+                    onChange={e => handleEditChange('category_id', e.target.value)}
+                    className={styles.select}
+                  >
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className={styles.cardActions}>
+                  <button type="button" onClick={() => handleEditSave(exp.id)} className={styles.actionButton}>Save</button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingId(null);
+                      setEditExpense({});
+                      setValidationErrors({});
+                    }}
+                    className={`${styles.actionButton} ${styles.actionButtonSecondary}`}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.cardTop}>
+                  <h4 className={styles.cardTitle}>{exp.item_name}</h4>
+                  <span className={styles.cardAmount}>${Number(exp.amount).toFixed(2)}</span>
+                </div>
+                <div className={styles.cardMeta}>
+                  <span>{exp.date}</span>
+                  <span>{categories.find(cat => cat.id === exp.category_id)?.name || '—'}</span>
+                  {exp.is_recurring && <span>Recurring</span>}
+                  {exp.notes && <span>{exp.notes}</span>}
+                </div>
+                <div className={styles.cardActions}>
+                  <button type="button" onClick={() => handleEdit(exp)} className={styles.actionButton}>Edit</button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(exp.id)}
+                    className={`${styles.actionButton} ${styles.actionButtonSecondary}`}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead className={styles.tableHeader}>
@@ -449,7 +561,7 @@ const ExpenseTable: React.FC = () => {
                 <tr key={exp.id}>
                   <td className={styles.tableCell}>{exp.date}</td>
                   <td className={styles.tableCell}>{exp.item_name}</td>
-                  <td className={styles.tableCell}>${exp.amount.toFixed(2)}</td>
+                  <td className={styles.tableCell}>${Number(exp.amount).toFixed(2)}</td>
                   <td className={styles.tableCell}>{categories.find(cat => cat.id === exp.category_id)?.name || '—'}</td>
                   <td className={styles.tableCell}>{exp.notes}</td>
                   <td className={styles.tableCell}>{exp.is_recurring ? 'Yes' : 'No'}</td>

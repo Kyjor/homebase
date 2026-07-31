@@ -1,0 +1,121 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: linear-gradient(160deg, #eef2ff 0%, #f8fafc 45%, #e2e8f0 100%);
+}
+
+.card {
+  background: #fff;
+  padding: 28px 24px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 32px rgba(60, 72, 88, 0.1);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.brand {
+  font-weight: 800;
+  font-size: 20px;
+  color: #4338ca;
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  text-align: center;
+  font-weight: 700;
+  font-size: 22px;
+  color: #0f172a;
+}
+
+.subtitle {
+  margin: 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.tab {
+  border: none;
+  background: transparent;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.tabActive {
+  background: #fff;
+  color: #4338ca;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 16px;
+}
+
+.submit {
+  background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.inviteCode {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  word-break: break-all;
+  text-align: center;
+  font-family: ui-monospace, monospace;
+}

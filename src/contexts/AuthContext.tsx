@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import type { User as AuthUser } from '@supabase/supabase-js';
 import supabase from '../services/supabaseClient';
 import { User } from '../types';
 
@@ -14,57 +15,94 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+async function loadOrCreateProfile(authUser: AuthUser): Promise<{ profile: User | null; error: string | null }> {
+  const { data: existing, error: selectError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', authUser.id)
+    .maybeSingle();
+
+  if (selectError) {
+    return { profile: null, error: selectError.message };
+  }
+  if (existing) {
+    return { profile: existing as User, error: null };
+  }
+
+  // Profile missing (e.g. account created before signup trigger) — create it now
+  const name =
+    (authUser.user_metadata?.name as string | undefined)?.trim() ||
+    authUser.email?.split('@')[0] ||
+    'User';
+
+  const { data: created, error: upsertError } = await supabase
+    .from('users')
+    .upsert(
+      {
+        id: authUser.id,
+        email: authUser.email || '',
+        name,
+      },
+      { onConflict: 'id' }
+    )
+    .select('*')
+    .maybeSingle();
+
+  if (upsertError) {
+    return { profile: null, error: upsertError.message };
+  }
+  return { profile: (created as User) || null, error: created ? null : 'Could not load user profile' };
+}
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch user session on mount
+  const syncFromAuthUser = async (authUser: AuthUser | null) => {
+    if (!authUser) {
+      setUser(null);
+      return;
+    }
+    const { profile, error: profileError } = await loadOrCreateProfile(authUser);
+    if (profile) setUser(profile);
+    if (profileError) setError(profileError);
+  };
+
   useEffect(() => {
     const getSession = async () => {
       setLoading(true);
       const { data } = await supabase.auth.getUser();
-      if (data?.user) {
-        // Fetch user profile from users table
-        const { data: profile, error: profileError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', data.user.id)
-          .single();
-        if (profile) setUser(profile as User);
-        if (profileError) setError(profileError.message);
-      } else {
-        setUser(null);
-      }
+      await syncFromAuthUser(data?.user ?? null);
       setLoading(false);
     };
     getSession();
-    // Listen for auth state changes
     const { data: listener } = supabase.auth.onAuthStateChange(() => {
       getSession();
     });
     return () => {
       listener?.subscription.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const signUp = async (email: string, password: string, name: string) => {
     setLoading(true);
     setError(null);
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) {
-      setError(error.message);
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name } },
+    });
+    if (signUpError) {
+      setError(signUpError.message);
       setLoading(false);
       return;
     }
-    if (data.user) {
-      // Insert user profile into users table
-      const { error: insertError } = await supabase.from('users').insert({
-        id: data.user.id,
-        email,
-        name,
-      });
-      if (insertError) setError(insertError.message);
+    if (data.session && data.user) {
+      await syncFromAuthUser(data.user);
+    } else if (data.user && !data.session) {
+      setError('Check your email to confirm your account, then sign in.');
     }
     setLoading(false);
   };
@@ -72,22 +110,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     setError(null);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setError(error.message);
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (signInError) {
+      setError(signInError.message);
       setLoading(false);
       return;
     }
-    if (data.user) {
-      // Fetch user profile
-      const { data: profile, error: profileError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', data.user.id)
-        .single();
-      if (profile) setUser(profile as User);
-      if (profileError) setError(profileError.message);
-    }
+    await syncFromAuthUser(data.user);
     setLoading(false);
   };
 
@@ -103,17 +135,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     const { data } = await supabase.auth.getUser();
-    if (data?.user) {
-      const { data: profile, error: profileError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', data.user.id)
-        .single();
-      if (profile) setUser(profile as User);
-      if (profileError) setError(profileError.message);
-    } else {
-      setUser(null);
-    }
+    await syncFromAuthUser(data?.user ?? null);
     setLoading(false);
   };
 
@@ -130,4 +152,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};

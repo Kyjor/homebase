@@ -9,8 +9,7 @@ import {
 } from '../services/recurringPaymentService';
 import { getCategoriesByHousehold } from '../services/categoryService';
 import { getCache, setCache } from '../utils/cacheManager';
-
-const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 700;
+import styles from './ManagePanel.module.css';
 
 const RecurringPayments: React.FC = () => {
   const { household } = useHousehold();
@@ -178,37 +177,25 @@ const RecurringPayments: React.FC = () => {
     }
   };
 
-  if (loading) return <div>Loading recurring payments...</div>;
-  if (error) return <div className="recurring-error">{error}</div>;
-
-  const mobile = isMobile();
+  if (loading) return <div className={styles.hint}>Loading recurring payments…</div>;
 
   return (
-    <div style={{
-      background: '#fff',
-      borderRadius: 12,
-      boxShadow: '0 2px 12px 0 rgba(60,72,88,0.08)',
-      padding: mobile ? '1rem 0.5rem' : '1.5rem 1.5rem',
-      margin: mobile ? '10px 0' : '18px 0',
-      maxWidth: 520,
-      width: '100%',
-      boxSizing: 'border-box',
-      marginLeft: 'auto',
-      marginRight: 'auto',
-    }}>
-      <h3 style={{ fontWeight: 700, fontSize: mobile ? 18 : 22, color: '#2d3748', marginBottom: 10, textAlign: 'center' }}>Recurring Payments</h3>
-      {syncing && <div style={{ background: '#e3f2fd', color: '#1565c0', padding: '4px 0', textAlign: 'center', fontWeight: 600, borderRadius: 6, marginBottom: 10 }}>Syncing offline changes...</div>}
-      {error && <div style={{ background: '#fee2e2', color: '#b91c1c', borderRadius: 6, padding: '8px 12px', fontSize: 15, textAlign: 'center', marginBottom: 10, fontWeight: 500 }}>{error}</div>}
-      <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: mobile ? 10 : 8, marginBottom: 16, alignItems: mobile ? 'stretch' : 'flex-end' }}>
+    <div className={styles.panel}>
+      <p className={styles.hint}>Subscriptions and repeating bills for this household.</p>
+      {syncing && <p className={styles.hint}>Syncing offline changes…</p>}
+      {error && <div className={styles.error}>{error}</div>}
+
+      <form onSubmit={handleAdd} className={styles.form}>
         <input
+          className={styles.input}
           type="text"
           placeholder="Description"
           value={newPayment.description || ''}
           onChange={e => setNewPayment({ ...newPayment, description: e.target.value })}
           required
-          style={{ flex: 2, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
         />
         <input
+          className={styles.input}
           type="number"
           placeholder="Amount"
           value={newPayment.amount || ''}
@@ -216,114 +203,117 @@ const RecurringPayments: React.FC = () => {
           min="0"
           step="0.01"
           required
-          style={{ flex: 1, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
         />
         <select
+          className={styles.select}
           value={newPayment.category_id || ''}
           onChange={e => setNewPayment({ ...newPayment, category_id: e.target.value })}
           required
-          style={{ flex: 1, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
         >
           <option value="">Category</option>
-          {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+          {categories.map(cat => (
+            <option key={cat.id} value={cat.id}>{cat.name}</option>
+          ))}
         </select>
         <select
+          className={styles.select}
           value={newPayment.frequency || 'monthly'}
           onChange={e => setNewPayment({ ...newPayment, frequency: e.target.value as any })}
           required
-          style={{ flex: 1, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
         >
           <option value="monthly">Monthly</option>
           <option value="weekly">Weekly</option>
           <option value="custom">Custom</option>
         </select>
         <input
+          className={styles.input}
           type="date"
           value={newPayment.next_due || ''}
           onChange={e => setNewPayment({ ...newPayment, next_due: e.target.value })}
           required
-          style={{ flex: 1, minWidth: 0, width: '100%', padding: '10px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 15, boxSizing: 'border-box' }}
         />
-        <button
-          type="submit"
-          style={{
-            background: 'linear-gradient(90deg, #6366f1 0%, #60a5fa 100%)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 6,
-            padding: '10px 0',
-            fontWeight: 600,
-            fontSize: 15,
-            cursor: 'pointer',
-            minWidth: 70,
-            width: mobile ? '100%' : undefined,
-            boxShadow: '0 2px 8px 0 rgba(60,72,88,0.08)',
-            transition: 'background 0.2s',
-          }}
-        >Add</button>
+        <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`}>Add</button>
       </form>
-      <div style={{ overflowX: 'auto', width: '100%', maxWidth: '100vw', boxSizing: 'border-box' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 15, minWidth: mobile ? undefined : 600, boxSizing: 'border-box' }}>
-          <thead>
-            <tr style={{ background: '#f1f5f9' }}>
-              <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Description</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Amount</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Category</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Frequency</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Next Due</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Status</th>
-              <th style={{ padding: '10px 6px', fontWeight: 700, textAlign: 'left', fontSize: 15 }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map(payment => (
-              editingId === payment.id ? (
-                <tr key={payment.id} style={{ background: '#f8fafc' }}>
-                  <td><input type="text" value={editPayment.description || ''} onChange={e => handleEditChange('description', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
-                  <td><input type="number" value={editPayment.amount || ''} onChange={e => handleEditChange('amount', Number(e.target.value))} min="0" step="0.01" style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
-                  <td>
-                    <select value={editPayment.category_id || ''} onChange={e => handleEditChange('category_id', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }}>
-                      {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
-                    </select>
-                  </td>
-                  <td>
-                    <select value={editPayment.frequency || 'monthly'} onChange={e => handleEditChange('frequency', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }}>
-                      <option value="monthly">Monthly</option>
-                      <option value="weekly">Weekly</option>
-                      <option value="custom">Custom</option>
-                    </select>
-                  </td>
-                  <td><input type="date" value={editPayment.next_due || ''} onChange={e => handleEditChange('next_due', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }} /></td>
-                  <td>
-                    <select value={editPayment.status || 'active'} onChange={e => handleEditChange('status', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: 5, border: '1px solid #cbd5e1', boxSizing: 'border-box' }}>
-                      <option value="active">Active</option>
-                      <option value="paused">Paused</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
-                  </td>
-                  <td>
-                    <button onClick={() => handleEditSave(payment.id)} style={{ marginRight: 6, background: '#6366f1', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Save</button>
-                    <button onClick={() => setEditingId(null)} style={{ background: '#f1f5f9', color: '#334155', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
-                  </td>
-                </tr>
+
+      {payments.length === 0 ? (
+        <div className={styles.empty}>No recurring payments yet.</div>
+      ) : (
+        <div className={styles.stack}>
+          {payments.map(payment => (
+            <div key={payment.id} className={styles.row}>
+              {editingId === payment.id ? (
+                <>
+                  <input
+                    className={styles.input}
+                    value={editPayment.description || ''}
+                    onChange={e => handleEditChange('description', e.target.value)}
+                  />
+                  <input
+                    className={styles.input}
+                    type="number"
+                    value={editPayment.amount || ''}
+                    onChange={e => handleEditChange('amount', Number(e.target.value))}
+                    min="0"
+                    step="0.01"
+                  />
+                  <select
+                    className={styles.select}
+                    value={editPayment.category_id || ''}
+                    onChange={e => handleEditChange('category_id', e.target.value)}
+                  >
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                  <select
+                    className={styles.select}
+                    value={editPayment.frequency || 'monthly'}
+                    onChange={e => handleEditChange('frequency', e.target.value)}
+                  >
+                    <option value="monthly">Monthly</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="custom">Custom</option>
+                  </select>
+                  <input
+                    className={styles.input}
+                    type="date"
+                    value={editPayment.next_due || ''}
+                    onChange={e => handleEditChange('next_due', e.target.value)}
+                  />
+                  <select
+                    className={styles.select}
+                    value={editPayment.status || 'active'}
+                    onChange={e => handleEditChange('status', e.target.value)}
+                  >
+                    <option value="active">Active</option>
+                    <option value="paused">Paused</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                  <div className={styles.actions}>
+                    <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => handleEditSave(payment.id)}>Save</button>
+                    <button type="button" className={`${styles.btn} ${styles.btnSecondary}`} onClick={() => setEditingId(null)}>Cancel</button>
+                  </div>
+                </>
               ) : (
-                <tr key={payment.id}>
-                  <td>{payment.description}</td>
-                  <td>{payment.amount.toFixed(2)}</td>
-                  <td>{categories.find(cat => cat.id === payment.category_id)?.name || '—'}</td>
-                  <td>{payment.frequency}</td>
-                  <td>{payment.next_due}</td>
-                  <td>{payment.status}</td>
-                  <td>
-                    <button onClick={() => handleEdit(payment)} style={{ marginRight: 6, background: '#6366f1', color: '#fff', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Edit</button>
-                    <button onClick={() => handleDelete(payment.id)} style={{ background: '#f1f5f9', color: '#334155', border: 'none', borderRadius: 5, padding: '6px 12px', fontWeight: 600, cursor: 'pointer' }}>Delete</button>
-                  </td>
-                </tr>
-              )
-            ))}
-          </tbody>
-        </table>
-      </div>
+                <>
+                  <div style={{ flex: 1, minWidth: 140 }}>
+                    <div className={styles.label}>{payment.description}</div>
+                    <div className={styles.meta}>
+                      ${Number(payment.amount).toFixed(2)} · {payment.frequency} · due {payment.next_due} · {payment.status}
+                      {' · '}
+                      {categories.find(cat => cat.id === payment.category_id)?.name || '—'}
+                    </div>
+                  </div>
+                  <div className={styles.actions}>
+                    <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => handleEdit(payment)}>Edit</button>
+                    <button type="button" className={`${styles.btn} ${styles.btnDanger}`} onClick={() => handleDelete(payment.id)}>Delete</button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

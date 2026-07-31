@@ -1,0 +1,259 @@
+:root {
+  --ink: #1c1814;
+  --foam: #f3ebe0;
+  --track: #c47a2c;
+  --flare: #6bb3a0;
+  --dusk: #2a2218;
+  --mist: #a89884;
+  --display: "Sora", system-ui, sans-serif;
+  --body: "DM Sans", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--body);
+  color: var(--ink);
+  background: var(--foam);
+  line-height: 1.5;
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 70% 50% at 90% -5%, rgba(196, 122, 44, 0.28), transparent 55%),
+    radial-gradient(ellipse 55% 40% at 0% 25%, rgba(107, 179, 160, 0.2), transparent 50%),
+    linear-gradient(165deg, #efe4d4 0%, var(--foam) 45%, #e8dccb 100%);
+}
+
+a { color: inherit; }
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 1.25rem 1.5rem;
+}
+
+.brand-mark {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+nav a {
+  text-decoration: none;
+  opacity: 0.75;
+}
+
+nav a:hover { opacity: 1; }
+
+.nav-cta {
+  background: var(--track);
+  color: white !important;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  opacity: 1 !important;
+}
+
+.hero {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+@media (min-width: 820px) {
+  .hero { grid-template-columns: 1.1fr 0.9fr; }
+}
+
+.eyebrow {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: var(--mist);
+  margin: 0 0 0.75rem;
+}
+
+.brand {
+  font-family: var(--display);
+  font-size: clamp(2.8rem, 7vw, 4.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin: 0 0 1rem;
+}
+
+.lede {
+  font-size: 1.15rem;
+  max-width: 34rem;
+  margin: 0 0 1.5rem;
+  opacity: 0.9;
+}
+
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.15rem;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.btn-track {
+  background: var(--dusk);
+  color: #fff;
+}
+
+.btn-ghost {
+  border: 1.5px solid rgba(28, 24, 20, 0.2);
+}
+
+.fine {
+  font-size: 0.9rem;
+  color: var(--mist);
+  margin: 0;
+}
+
+.phone {
+  background: linear-gradient(160deg, #3a2f24, var(--dusk));
+  color: #f7efe4;
+  border-radius: 2rem;
+  padding: 1.75rem 1.5rem;
+  min-height: 280px;
+  box-shadow: 0 24px 50px rgba(42, 34, 24, 0.28);
+}
+
+.phone-brand {
+  font-family: var(--display);
+  font-weight: 700;
+  margin: 0 0 1.5rem;
+}
+
+.phone-stat {
+  font-family: var(--display);
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.phone-sub {
+  opacity: 0.7;
+  margin: 0.25rem 0 1.25rem;
+}
+
+.phone-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.phone-chip {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.phone-chip strong { font-size: 0.8rem; opacity: 0.75; }
+.phone-chip span { font-weight: 700; }
+
+.section {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+.section h2 {
+  font-family: var(--display);
+  font-size: 1.8rem;
+  margin: 0 0 0.75rem;
+}
+
+.features {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 720px) {
+  .features { grid-template-columns: repeat(3, 1fr); }
+}
+
+.feature {
+  padding: 1.25rem 0;
+}
+
+.feature h3 {
+  font-family: var(--display);
+  margin: 0 0 0.4rem;
+  font-size: 1.15rem;
+}
+
+.feature p {
+  margin: 0;
+  opacity: 0.85;
+}
+
+.legal {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.legal h1 {
+  font-family: var(--display);
+  font-size: 2.4rem;
+  margin: 0 0 0.5rem;
+}
+
+.legal .meta {
+  color: var(--mist);
+  margin: 0 0 2rem;
+}
+
+.legal h2 {
+  font-family: var(--display);
+  font-size: 1.25rem;
+  margin: 2rem 0 0.6rem;
+}
+
+.legal p, .legal li { opacity: 0.92; }
+
+footer {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  color: var(--mist);
+  font-size: 0.9rem;
+}
