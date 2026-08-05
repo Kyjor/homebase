@@ -191,8 +191,15 @@ export async function mockSubscription(): Promise<PurchaseResult> {
   return { ok: true, mock: true };
 }
 
-/** Vite DEV, or VITE_SUBSCRIPTION_BYPASS=true baked into the build. */
+/**
+ * TEMP: subscription paywall disabled while testing.
+ * Set to false before shipping a paid release.
+ */
+const SUBSCRIPTION_DISABLED_FOR_TESTING = true;
+
+/** Vite DEV, VITE_SUBSCRIPTION_BYPASS=true, or temporary testing bypass. */
 export function isDevBypassEnabled(): boolean {
+  if (SUBSCRIPTION_DISABLED_FOR_TESTING) return true;
   if (import.meta.env.DEV) return true;
   const flag = String(import.meta.env.VITE_SUBSCRIPTION_BYPASS ?? "")
     .trim()

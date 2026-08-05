@@ -5,6 +5,45 @@ import { AuthProvider } from './contexts/AuthContext';
 import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import "@ncdai/react-wheel-picker/style.css";
+import "./global.css";
+
+// Prevent pinch / ctrl+scroll / keyboard zoom so the app feels native.
+document.addEventListener(
+  "gesturestart",
+  (event) => {
+    event.preventDefault();
+  },
+  { passive: false }
+);
+document.addEventListener(
+  "gesturechange",
+  (event) => {
+    event.preventDefault();
+  },
+  { passive: false }
+);
+document.addEventListener(
+  "wheel",
+  (event) => {
+    if (event.ctrlKey) event.preventDefault();
+  },
+  { passive: false }
+);
+document.addEventListener(
+  "keydown",
+  (event) => {
+    if (
+      (event.ctrlKey || event.metaKey) &&
+      (event.key === "+" ||
+        event.key === "-" ||
+        event.key === "=" ||
+        event.key === "0")
+    ) {
+      event.preventDefault();
+    }
+  },
+  { passive: false }
+);
 
 // Global error handlers for better debugging
 window.addEventListener('error', (event) => {
