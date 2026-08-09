@@ -24,6 +24,11 @@ function formatMoney(dollars: string, cents: string) {
   return `${d}.${c}`;
 }
 
+function defaultShoppingCategoryId(categories: { id: string; name: string }[]) {
+  const groceries = categories.find(c => c.name.trim().toLowerCase() === 'groceries');
+  return groceries?.id || categories[0]?.id || '';
+}
+
 const activeListStorageKey = (householdId: string) =>
   `homebase_shopping_list_${householdId}`;
 
