@@ -216,7 +216,10 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
         },
         payload => {
           if (payload.eventType === 'INSERT') {
-            setItems(prev => [...prev, payload.new as Expense]);
+            const incoming = payload.new as Expense;
+            setItems(prev =>
+              prev.some(i => i.id === incoming.id) ? prev : [...prev, incoming]
+            );
           } else if (payload.eventType === 'UPDATE') {
             setItems(prev =>
               prev.map(i => (i.id === payload.new.id ? (payload.new as Expense) : i))
@@ -255,7 +258,10 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
           } as any)
         )
       );
-      setItems([...items, ...results]);
+      setItems(prev => {
+        const seen = new Set(prev.map(i => i.id));
+        return [...prev, ...results.filter(r => !seen.has(r.id))];
+      });
       setItemName('');
       setQuantity(1);
       setDollars('0');
