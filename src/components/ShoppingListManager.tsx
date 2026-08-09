@@ -231,7 +231,7 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
       .then(([expenses, cats]) => {
         setItems(expenses.filter(e => e.shopping_list_id === list.id));
         setCategories(cats);
-        if (cats[0]) setCategoryId(cats[0].id);
+        setCategoryId(defaultShoppingCategoryId(cats));
       })
       .catch(e => setError(e.message));
 
@@ -284,7 +284,7 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
             is_purchased: false,
             date: new Date().toISOString().slice(0, 10),
             amount,
-            category_id: categoryId || categories[0]?.id || '',
+            category_id: categoryId || defaultShoppingCategoryId(categories),
             item_name: itemName.trim(),
             notes: '',
           } as any)
