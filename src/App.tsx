@@ -20,6 +20,8 @@ import styles from './App.module.css';
 type TabKey = 'dashboard' | 'health' | 'shopping' | 'calendar' | 'members';
 type ModalKey = 'categories' | 'budgets' | 'recurring' | null;
 
+const ACTIVE_TAB_KEY = 'homebase_active_tab';
+
 const TABS: { key: TabKey; label: string; short: string; icon: string }[] = [
   { key: 'dashboard', label: 'Dashboard', short: 'Money', icon: '💵' },
   { key: 'health', label: 'House Health', short: 'House', icon: '🏠' },
@@ -27,6 +29,16 @@ const TABS: { key: TabKey; label: string; short: string; icon: string }[] = [
   { key: 'calendar', label: 'Calendar', short: 'Cal', icon: '📅' },
   { key: 'members', label: 'Members', short: 'People', icon: '👥' },
 ];
+
+function readStoredTab(): TabKey {
+  try {
+    const saved = sessionStorage.getItem(ACTIVE_TAB_KEY);
+    if (saved && TABS.some(t => t.key === saved)) return saved as TabKey;
+  } catch {
+    /* ignore */
+  }
+  return 'dashboard';
+}
 
 const MODAL_OPTIONS = [
   { key: 'categories' as const, label: 'Categories', icon: '📂', component: CategoryManager },
@@ -107,9 +119,17 @@ const SubscribedApp: React.FC<{ isOnline: boolean }> = ({ isOnline }) => {
 const HouseholdGate: React.FC = () => {
   const { household, loading: householdLoading } = useHousehold();
   const { signOut, user } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
+  const [activeTab, setActiveTab] = useState<TabKey>(readStoredTab);
   const [modalOpen, setModalOpen] = useState<ModalKey>(null);
   const [manageMenuOpen, setManageMenuOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(ACTIVE_TAB_KEY, activeTab);
+    } catch {
+      /* ignore */
+    }
+  }, [activeTab]);
 
   if (householdLoading) return <div className={styles.loading}>Loading household…</div>;
   if (!household) return <HouseholdOnboarding />;

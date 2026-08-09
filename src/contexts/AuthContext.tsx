@@ -70,17 +70,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    const getSession = async () => {
+    let mounted = true;
+
+    // Initial session only — do not set loading on later auth events
+    // (TOKEN_REFRESHED etc.) or the whole app remounts and navigation resets.
+    const init = async () => {
       setLoading(true);
       const { data } = await supabase.auth.getUser();
+      if (!mounted) return;
       await syncFromAuthUser(data?.user ?? null);
-      setLoading(false);
+      if (mounted) setLoading(false);
     };
-    getSession();
-    const { data: listener } = supabase.auth.onAuthStateChange(() => {
-      getSession();
+    void init();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+      void syncFromAuthUser(session?.user ?? null);
     });
+
     return () => {
+      mounted = false;
       listener?.subscription.unsubscribe();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

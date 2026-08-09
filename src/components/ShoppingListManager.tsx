@@ -24,6 +24,9 @@ function formatMoney(dollars: string, cents: string) {
   return `${d}.${c}`;
 }
 
+const activeListStorageKey = (householdId: string) =>
+  `homebase_shopping_list_${householdId}`;
+
 const ShoppingListManager: React.FC = () => {
   const { household } = useHousehold();
   const [lists, setLists] = useState<ShoppingList[]>([]);
@@ -33,10 +36,32 @@ const ShoppingListManager: React.FC = () => {
   const [editName, setEditName] = useState('');
   const [activeList, setActiveList] = useState<ShoppingList | null>(null);
 
+  const openList = (list: ShoppingList | null) => {
+    setActiveList(list);
+    if (!household) return;
+    try {
+      if (list) sessionStorage.setItem(activeListStorageKey(household.id), list.id);
+      else sessionStorage.removeItem(activeListStorageKey(household.id));
+    } catch {
+      /* ignore */
+    }
+  };
+
   useEffect(() => {
     if (!household) return;
     getShoppingListsByHousehold(household.id)
-      .then(setLists)
+      .then(fetched => {
+        setLists(fetched);
+        try {
+          const savedId = sessionStorage.getItem(activeListStorageKey(household.id));
+          if (savedId) {
+            const match = fetched.find(l => l.id === savedId);
+            if (match) setActiveList(match);
+          }
+        } catch {
+          /* ignore */
+        }
+      })
       .catch(e => setError(e.message));
   }, [household]);
 
@@ -50,7 +75,7 @@ const ShoppingListManager: React.FC = () => {
       });
       setLists([...lists, list]);
       setNewListName('');
-      setActiveList(list);
+      openList(list);
     } catch (err: any) {
       setError(err.message);
     }
@@ -78,7 +103,7 @@ const ShoppingListManager: React.FC = () => {
   };
 
   if (activeList) {
-    return <ShoppingListPage list={activeList} onBack={() => setActiveList(null)} />;
+    return <ShoppingListPage list={activeList} onBack={() => openList(null)} />;
   }
 
   return (
@@ -139,7 +164,7 @@ const ShoppingListManager: React.FC = () => {
                   <button
                     type="button"
                     className={styles.listName}
-                    onClick={() => setActiveList(list)}
+                    onClick={() => openList(list)}
                   >
                     {list.name}
                   </button>
@@ -188,6 +213,7 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
   const [cents, setCents] = useState('00');
   const [priceOpen, setPriceOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Expense | null>(null);
+  const [editCategoryId, setEditCategoryId] = useState('');
 
   useEffect(() => {
     if (!household) return;
@@ -225,7 +251,8 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
               prev.map(i => (i.id === payload.new.id ? (payload.new as Expense) : i))
             );
           } else if (payload.eventType === 'DELETE') {
-            setItems(prev => prev.filter(i => i.id !== payload.old.id));
+            const removedId = (payload.old as { id?: string })?.id;
+            if (removedId) setItems(prev => prev.filter(i => i.id !== removedId));
           }
         }
       )
@@ -273,20 +300,41 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Remove this item?')) return;
+    setItems(prev => prev.filter(i => i.id !== id));
     try {
       await deleteExpense(id);
-      setItems(items.filter(i => i.id !== id));
     } catch (err: any) {
       setError(err.message);
+      if (!household) return;
+      try {
+        const expenses = await getExpensesByHousehold(household.id);
+        setItems(expenses.filter(e => e.shopping_list_id === list.id));
+      } catch {
+        /* keep optimistic removal */
+      }
     }
+  };
+
+  const closeEditor = () => {
+    setPriceOpen(false);
+    setEditingItem(null);
+    setEditCategoryId('');
   };
 
   const savePrice = async () => {
     const amount = parseFloat(formatMoney(dollars, cents));
     if (editingItem) {
-      const updated = await updateExpense(editingItem.id, { amount });
-      setItems(items.map(i => (i.id === editingItem.id ? updated : i)));
-      setEditingItem(null);
+      try {
+        const updated = await updateExpense(editingItem.id, {
+          amount,
+          category_id: editCategoryId || editingItem.category_id,
+        });
+        setItems(prev => prev.map(i => (i.id === editingItem.id ? updated : i)));
+        closeEditor();
+      } catch (err: any) {
+        setError(err.message);
+      }
+      return;
     }
     setPriceOpen(false);
   };
@@ -372,6 +420,7 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
                     setDollars(d);
                     setCents(c);
                     setEditingItem(item);
+                    setEditCategoryId(item.category_id || categories[0]?.id || '');
                     setPriceOpen(true);
                   }}
                 >
@@ -391,27 +440,18 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
       </div>
 
       {priceOpen && (
-        <div
-          className={styles.overlay}
-          onClick={() => {
-            setPriceOpen(false);
-            setEditingItem(null);
-          }}
-        >
+        <div className={styles.overlay} onClick={closeEditor}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <button
               type="button"
               className={styles.modalClose}
-              onClick={() => {
-                setPriceOpen(false);
-                setEditingItem(null);
-              }}
+              onClick={closeEditor}
               aria-label="Close"
             >
               ×
             </button>
             <h3 className={styles.modalTitle}>
-              {editingItem ? 'Edit price' : 'Set price'}
+              {editingItem ? 'Edit item' : 'Set price'}
             </h3>
             <div className={styles.simplePrice}>
               <span>$</span>
@@ -432,8 +472,23 @@ const ShoppingListPage: React.FC<{ list: ShoppingList; onBack: () => void }> = (
                 aria-label="Cents"
               />
             </div>
+            {editingItem && (
+              <select
+                className={styles.select}
+                value={editCategoryId}
+                onChange={e => setEditCategoryId(e.target.value)}
+                aria-label="Category"
+                style={{ width: '100%', marginBottom: 12 }}
+              >
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            )}
             <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={savePrice}>
-              {editingItem ? 'Save price' : 'Use this price'}
+              {editingItem ? 'Save' : 'Use this price'}
             </button>
           </div>
         </div>
